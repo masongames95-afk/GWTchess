@@ -498,6 +498,13 @@ function render() {
     avatarTopEl.textContent = topColor === 'white' ? '♔' : '♚';
     avatarBottomEl.textContent = bottomColor === 'white' ? '♚' : '♔';
 
+    const playerTopEl = document.getElementById('player-top');
+    const playerBottomEl = document.getElementById('player-bottom');
+    if (playerTopEl && playerBottomEl) {
+        playerTopEl.classList.toggle('active-turn', gameState.turn === topColor);
+        playerBottomEl.classList.toggle('active-turn', gameState.turn === bottomColor);
+    }
+
     // Captured pieces: pieces captured BY that player
     renderCaptured(capturedTopEl, gameState.captured[topColor]);
     renderCaptured(capturedBottomEl, gameState.captured[bottomColor]);

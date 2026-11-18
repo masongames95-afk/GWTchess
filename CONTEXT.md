@@ -41,7 +41,12 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
   - Auto-recording: Every checkmate, stalemate, or resignation in an online room automatically records into both users' profile history (`user.games`) in `users_db.json`.
 - **UI & Presentation**:
   - Open-access Colin M.L. Burnett chess piece set in high-resolution PNG (`assets/pieces/*.png`).
-  - Modern tournament wooden theme with coordinate indicators on square corners.
+  - Cold Modern Theme (Nordic Glacier & Arctic Frost palette):
+    - Light squares in frosted arctic pearl (`#dce5ec`), dark squares in glacier slate ocean (`#4d6d85`).
+    - Chess.com-style coordinate indicators embedded directly inside corner squares (ranks 1-8 on column 'a', files a-h on rank '1') with dynamic high contrast.
+    - Active turn indicators on player bar strips with cold cyan glow (`#38bdf8`) and left border pulse.
+    - Captured pieces tray with subtle overlap (`margin-left: -5px`) for a compact chess.com aesthetic.
+    - Chess.com-style notation sheet history table with sticky header, alternating cool dark rows, and active move cyan badge.
   - Header profile badge with live stats (`X В • Y П • Z Н`), "📊 Профиль", "💾 Сохранить" and "Выйти".
   - Clickable Profile Modal with detailed stats cards (Wins, Losses, Draws, Winrate %) and full chronological game history list.
   - Online Lobby Modal with tabs for "Создать комнату" (generates 6-character code with one-click copy & link sharing) and "Войти по коду".
@@ -117,3 +122,4 @@ chess/
 - [x] Added auto-flipping board for Black in online games.
 - [x] Added automated test suites: `test/rooms_test.js` and `test/online_api_test.js`.
 - [x] Verified full test suite (`npm test`) passes with 0 failures across all 6 test suites.
+- [x] Redesigned UI/UX: chess.com-inspired layout, distinct Cold Nordic Glacier & Arctic Frost palette, active turn glows on player bars, overlapping captured piece trays, and modernized notation sheet history table.
