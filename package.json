@@ -1,0 +1,19 @@
+{
+  "name": "chess",
+  "version": "2.1.0",
+  "description": "FIDE-compliant browser chess with Node.js server, JSON database authentication and persistence",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node test/db_test.js && node test/server_test.js && node test/chess_test.js && node test/more_tests.js"
+  },
+  "keywords": [
+    "chess",
+    "browser-game",
+    "fide",
+    "auth",
+    "json-database"
+  ],
+  "author": "",
+  "license": "MIT"
+}

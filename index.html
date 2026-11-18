@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Шахматы в браузере</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Top Navigation / Header -->
+        <header class="app-header">
+            <div class="brand">
+                <div class="brand-icon">
+                    <img src="assets/pieces/wK.png" alt="Король" class="brand-img">
+                </div>
+                <div>
+                    <h1>Королевские шахматы</h1>
+                    <span class="sub-badge">GitHub Pages • Правила FIDE • Open Source PNG</span>
+                </div>
+            </div>
+
+            <div class="header-status">
+                <div id="turn-badge" class="turn-badge turn-white">
+                    <span class="turn-dot"></span>
+                    <span id="turn-text">Ход белых</span>
+                </div>
+                <div id="check-alert" class="check-alert hidden">
+                    <span class="pulse-icon">⚠️</span> ШАХ!
+                </div>
+                <button id="btn-sound-toggle" class="icon-btn" title="Включить/выключить звук" aria-label="Звук">
+                    🔊
+                </button>
+
+                <!-- Auth / Profile Section -->
+                <div class="header-auth" id="header-auth">
+                    <button id="btn-open-auth" class="btn btn-outline btn-sm">
+                        <span class="btn-icon">👤</span> Войти
+                    </button>
+                    <div id="user-badge" class="user-badge hidden">
+                        <div class="user-info-text">
+                            <span class="user-icon">👤</span>
+                            <span id="user-display-name" class="user-name">Гость</span>
+                            <span id="user-stats-pill" class="stats-pill" title="Победы / Поражения / Ничьи">0 В • 0 П • 0 Н</span>
+                        </div>
+                        <button id="btn-cloud-save" class="btn btn-outline btn-xs" title="Сохранить текущую игру в базу данных">💾 Сохранить</button>
+                        <button id="btn-logout" class="btn btn-outline btn-xs" title="Выйти из аккаунта">Выйти</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="game-layout">
+            <!-- Left: Chessboard Column -->
+            <section class="board-column">
+                <!-- Opponent Player Bar (Black default) -->
+                <div class="player-bar" id="player-top">
+                    <div class="player-info">
+                        <div class="player-avatar" id="avatar-top">♚</div>
+                        <div class="player-meta">
+                            <span class="player-name" id="name-top">Черные</span>
+                            <div class="captured-row" id="captured-top"></div>
+                        </div>
+                    </div>
+                    <div class="material-advantage" id="material-top"></div>
+                </div>
+
+                <!-- Interactive Chessboard -->
+                <div class="board-frame">
+                    <div id="chessboard" class="chessboard" aria-label="Шахматная доска"></div>
+
+                    <!-- Pawn Promotion Modal Overlay -->
+                    <div id="promotion-overlay" class="modal-overlay hidden">
+                        <div class="promotion-modal">
+                            <h3>Выберите фигуру:</h3>
+                            <div class="promotion-choices" id="promotion-choices">
+                                <!-- Dynamically filled with Queen, Rook, Bishop, Knight -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Game Over Modal Overlay -->
+                    <div id="game-over-overlay" class="modal-overlay hidden">
+                        <div class="game-over-modal">
+                            <div class="modal-icon" id="game-over-icon">🏆</div>
+                            <h2 id="game-over-title">Мат!</h2>
+                            <p id="game-over-desc">Белые победили в 24 хода.</p>
+                            <div class="modal-actions">
+                                <button id="btn-modal-restart" class="btn btn-primary">Новая партия</button>
+                                <button id="btn-modal-close" class="btn btn-outline">Просмотреть доску</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bottom Player Bar (White default) -->
+                <div class="player-bar" id="player-bottom">
+                    <div class="player-info">
+                        <div class="player-avatar" id="avatar-bottom">♔</div>
+                        <div class="player-meta">
+                            <span class="player-name" id="name-bottom">Белые</span>
+                            <div class="captured-row" id="captured-bottom"></div>
+                        </div>
+                    </div>
+                    <div class="material-advantage" id="material-bottom"></div>
+                </div>
+            </section>
+
+            <!-- Right: Sidebar Column -->
+            <aside class="sidebar">
+                <!-- Action Controls Card -->
+                <div class="card controls-card">
+                    <h2>Управление</h2>
+                    <div class="buttons-grid">
+                        <button id="btn-reset" class="btn btn-danger">
+                            <span class="btn-icon">↺</span> Новая партия
+                        </button>
+                        <button id="btn-flip" class="btn btn-secondary">
+                            <span class="btn-icon">⇄</span> Перевернуть доску
+                        </button>
+                    </div>
+
+                    <div class="secondary-actions">
+                        <button id="btn-export-json" class="btn btn-outline btn-sm">
+                            ⬇ Скачать JSON
+                        </button>
+                        <label for="json-file-input" class="btn btn-outline btn-sm file-label">
+                            ⬆ Загрузить JSON
+                            <input type="file" id="json-file-input" accept=".json" style="display: none;">
+                        </label>
+                    </div>
+
+                    <div id="message-box" class="message-box"></div>
+                </div>
+
+                <!-- Move History Card -->
+                <div class="card history-card">
+                    <div class="card-header">
+                        <h2>История ходов</h2>
+                        <span id="move-total" class="badge-mini">0 полуходов</span>
+                    </div>
+                    <div class="history-table-wrapper">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th class="col-num">#</th>
+                                    <th>Белые</th>
+                                    <th>Черные</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-tbody">
+                                <!-- Populated dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Game Rules & Info Card -->
+                <div class="card info-card">
+                    <h2>Подсказки & Правила</h2>
+                    <ul class="rules-list">
+                        <li><strong>Шах и Мат:</strong> Полная проверка безопасности короля.</li>
+                        <li><strong>Рокировка:</strong> O-O (короткая) и O-O-O (длинная).</li>
+                        <li><strong>Взятие на проходе:</strong> Действует сразу после хода пешки на 2 клетки.</li>
+                        <li><strong>Превращение:</strong> Выбор Ферзя, Ладьи, Слона или Коня.</li>
+                    </ul>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <!-- Auth Modal Overlay (Login, Registration, Live Account Check) -->
+    <div id="auth-overlay" class="auth-overlay hidden">
+        <div class="auth-modal">
+            <div class="auth-modal-header">
+                <div class="auth-tabs">
+                    <button id="tab-login" class="auth-tab active" type="button">Вход</button>
+                    <button id="tab-register" class="auth-tab" type="button">Регистрация</button>
+                </div>
+                <button id="btn-close-auth" class="modal-close-btn" type="button" aria-label="Закрыть окно">✕</button>
+            </div>
+
+            <div class="auth-modal-body">
+                <!-- Login Form -->
+                <form id="form-login" class="auth-form">
+                    <div class="form-group">
+                        <label for="login-username">Имя пользователя (Логин)</label>
+                        <input type="text" id="login-username" class="auth-input" placeholder="Введите ваш логин" required autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-password">Пароль</label>
+                        <input type="password" id="login-password" class="auth-input" placeholder="Введите пароль" required autocomplete="current-password">
+                    </div>
+                    <div id="login-error" class="form-error hidden"></div>
+                    <button type="submit" id="btn-submit-login" class="btn btn-primary btn-block">
+                        Войти в аккаунт
+                    </button>
+                </form>
+
+                <!-- Registration Form -->
+                <form id="form-register" class="auth-form hidden">
+                    <div class="form-group">
+                        <div class="label-with-status">
+                            <label for="register-username">Придумайте логин</label>
+                            <span id="username-check-indicator" class="check-indicator"></span>
+                        </div>
+                        <input type="text" id="register-username" class="auth-input" placeholder="От 3 до 25 символов" required autocomplete="username">
+                        <span id="username-check-msg" class="field-msg"></span>
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password">Пароль</label>
+                        <input type="password" id="register-password" class="auth-input" placeholder="Минимум 4 символа" required autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                        <label for="register-password-confirm">Подтверждение пароля</label>
+                        <input type="password" id="register-password-confirm" class="auth-input" placeholder="Повторите пароль" required autocomplete="new-password">
+                    </div>
+                    <div id="register-error" class="form-error hidden"></div>
+                    <div id="register-success" class="form-success hidden"></div>
+                    <button type="submit" id="btn-submit-register" class="btn btn-primary btn-block">
+                        Зарегистрироваться
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engine & UI Scripts -->
+    <script src="js/engine.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
