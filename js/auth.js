@@ -4,7 +4,8 @@
  * session cookies / tokens, cloud game saves and stats in the JSON database.
  */
 
-const API_BASE = (window.location.protocol === 'file:' || (window.location.port && window.location.port !== '3000'))
+const isFileProtocol = window.location.protocol === 'file:';
+const API_BASE = (isFileProtocol || (window.location.port && window.location.port !== '3000'))
     ? 'http://localhost:3000'
     : '';
 
@@ -49,8 +50,22 @@ class AuthController {
         this.userBadge = document.getElementById('user-badge');
         this.userDisplayName = document.getElementById('user-display-name');
         this.userStatsPill = document.getElementById('user-stats-pill');
+        this.userInfoClickable = document.getElementById('user-info-clickable');
+        this.btnOpenProfile = document.getElementById('btn-open-profile');
         this.btnCloudSave = document.getElementById('btn-cloud-save');
         this.btnLogout = document.getElementById('btn-logout');
+
+        // Profile Modal elements
+        this.profileOverlay = document.getElementById('profile-overlay');
+        this.btnCloseProfile = document.getElementById('btn-close-profile');
+        this.profileUsername = document.getElementById('profile-username');
+        this.profileCreatedDate = document.getElementById('profile-created-date');
+        this.statWinsNum = document.getElementById('stat-wins-num');
+        this.statLossesNum = document.getElementById('stat-losses-num');
+        this.statDrawsNum = document.getElementById('stat-draws-num');
+        this.statWinrateNum = document.getElementById('stat-winrate-num');
+        this.profileGamesCount = document.getElementById('profile-games-count');
+        this.profileGamesList = document.getElementById('profile-games-list');
 
         this.init();
     }
@@ -109,6 +124,22 @@ class AuthController {
         // Cloud save
         if (this.btnCloudSave) {
             this.btnCloudSave.addEventListener('click', () => this.handleCloudSave());
+        }
+
+        // Profile modal opening
+        if (this.btnOpenProfile) {
+            this.btnOpenProfile.addEventListener('click', () => this.openProfileModal());
+        }
+        if (this.userInfoClickable) {
+            this.userInfoClickable.addEventListener('click', () => this.openProfileModal());
+        }
+        if (this.btnCloseProfile) {
+            this.btnCloseProfile.addEventListener('click', () => this.closeProfileModal());
+        }
+        if (this.profileOverlay) {
+            this.profileOverlay.addEventListener('click', (e) => {
+                if (e.target === this.profileOverlay) this.closeProfileModal();
+            });
         }
 
         // Initial session check
@@ -184,6 +215,7 @@ class AuthController {
     async checkUsernameAvailability(username) {
         try {
             const res = await fetch(`${API_BASE}/api/auth/check-username?username=${encodeURIComponent(username)}`, {
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders()
             });
             const data = await res.json();
@@ -222,7 +254,7 @@ class AuthController {
 
             const res = await fetch(`${API_BASE}/api/auth/login`, {
                 method: 'POST',
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ username, password })
             });
@@ -288,7 +320,7 @@ class AuthController {
 
             const res = await fetch(`${API_BASE}/api/auth/register`, {
                 method: 'POST',
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ username, password })
             });
@@ -358,7 +390,7 @@ class AuthController {
     async checkSession() {
         try {
             const res = await fetch(`${API_BASE}/api/auth/me`, {
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders()
             });
             if (res.ok) {
@@ -399,7 +431,7 @@ class AuthController {
         try {
             await fetch(`${API_BASE}/api/auth/logout`, {
                 method: 'POST',
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders()
             });
         } catch (e) {
@@ -432,7 +464,7 @@ class AuthController {
 
             const res = await fetch(`${API_BASE}/api/user/save-game`, {
                 method: 'POST',
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
                 body: JSON.stringify({ gameState })
             });
@@ -460,14 +492,134 @@ class AuthController {
         }
     }
 
-    async recordGameOutcome(outcome) {
+    async openProfileModal() {
+        if (!this.currentUser) {
+            this.openModal('login');
+            return;
+        }
+
+        if (this.profileOverlay) {
+            this.profileOverlay.classList.remove('hidden');
+            await this.loadProfileData();
+        }
+    }
+
+    closeProfileModal() {
+        if (this.profileOverlay) {
+            this.profileOverlay.classList.add('hidden');
+        }
+    }
+
+    async loadProfileData() {
+        if (!this.currentUser) return;
+
+        if (this.profileUsername) {
+            this.profileUsername.textContent = this.currentUser.username;
+        }
+        if (this.profileCreatedDate && this.currentUser.createdAt) {
+            const dateStr = new Date(this.currentUser.createdAt).toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            this.profileCreatedDate.textContent = `В игре с: ${dateStr}`;
+        }
+
+        try {
+            const res = await fetch(`${API_BASE}/api/user/games`, {
+                credentials: isFileProtocol ? 'omit' : 'include',
+                headers: getAuthHeaders()
+            });
+
+            if (res.ok) {
+                const data = await res.json();
+                const stats = data.stats || { wins: 0, losses: 0, draws: 0, total: 0 };
+                const games = data.games || [];
+
+                // Update stats cards
+                if (this.statWinsNum) this.statWinsNum.textContent = stats.wins;
+                if (this.statLossesNum) this.statLossesNum.textContent = stats.losses;
+                if (this.statDrawsNum) this.statDrawsNum.textContent = stats.draws;
+
+                const total = (stats.wins + stats.losses + stats.draws);
+                const winrate = total > 0 ? Math.round((stats.wins / total) * 100) : 0;
+                if (this.statWinrateNum) this.statWinrateNum.textContent = `${winrate}%`;
+
+                // Update current user cache
+                this.currentUser.stats = stats;
+                this.updateUserUI();
+
+                // Render games list
+                if (this.profileGamesCount) {
+                    this.profileGamesCount.textContent = `${games.length} партий`;
+                }
+
+                if (this.profileGamesList) {
+                    this.profileGamesList.innerHTML = '';
+                    if (games.length === 0) {
+                        this.profileGamesList.innerHTML = `
+                            <div class="profile-empty-games">
+                                ♟️ У вас пока нет сохраненных партий.<br>
+                                Сыграйте онлайн по коду комнаты или проведите локальную партию!
+                            </div>
+                        `;
+                    } else {
+                        games.forEach(g => {
+                            const card = document.createElement('div');
+                            card.className = 'game-item-card';
+
+                            let pillClass = 'result-draw';
+                            let pillText = 'Ничья';
+                            if (g.result === 'win') {
+                                pillClass = 'result-win';
+                                pillText = 'Победа';
+                            } else if (g.result === 'loss') {
+                                pillClass = 'result-loss';
+                                pillText = 'Поражение';
+                            }
+
+                            const opponentLabel = g.opponent ? `vs ${g.opponent}` : 'Локальная партия';
+                            const colorLabel = g.color === 'white' ? '⚪ Белые' : (g.color === 'black' ? '⚫ Черные' : '—');
+                            const reasonMap = {
+                                'checkmate': 'Мат',
+                                'stalemate': 'Пат',
+                                'resignation': 'Сдача'
+                            };
+                            const reasonLabel = reasonMap[g.reason] || g.reason || 'Завершено';
+                            const movesLabel = g.movesCount ? `${Math.ceil(g.movesCount / 2)} ходов` : '';
+                            const dateStr = g.date ? new Date(g.date).toLocaleDateString('ru-RU') + ' ' + new Date(g.date).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }) : '';
+
+                            card.innerHTML = `
+                                <div class="game-item-left">
+                                    <span class="game-result-pill ${pillClass}">${pillText}</span>
+                                    <div class="game-item-meta">
+                                        <span class="game-opponent">${opponentLabel}</span>
+                                        <span class="game-details-sub">${colorLabel} • ${reasonLabel} • ${movesLabel}</span>
+                                    </div>
+                                </div>
+                                <div class="game-item-right">
+                                    <span class="game-date">${dateStr}</span>
+                                    ${g.roomCode ? `<span class="game-room-tag">#${g.roomCode}</span>` : ''}
+                                </div>
+                            `;
+                            this.profileGamesList.appendChild(card);
+                        });
+                    }
+                }
+            }
+        } catch (err) {
+            console.error('Failed to load profile data:', err);
+        }
+    }
+
+    async recordGameOutcome(outcome, reason = 'checkmate', movesCount = 0) {
         if (!this.currentUser) return;
         try {
-            const res = await fetch(`${API_BASE}/api/user/record-result`, {
+            const res = await fetch(`${API_BASE}/api/user/record-game`, {
                 method: 'POST',
-                credentials: 'include',
+                credentials: isFileProtocol ? 'omit' : 'include',
                 headers: getAuthHeaders({ 'Content-Type': 'application/json' }),
-                body: JSON.stringify({ outcome })
+                body: JSON.stringify({ outcome, reason, movesCount })
             });
             if (res.ok) {
                 const data = await res.json();

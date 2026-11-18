@@ -257,6 +257,16 @@ function importFromJson(file) {
  * Execution of move (direct or after promotion selection)
  */
 function finalizeMove(from, to, promotionChoice = 'Q') {
+    // If this is an active online match, forward move to server
+    if (window.onlineController && window.onlineController.isOnlineMatch) {
+        selectedSquare = null;
+        legalMoves = [];
+        pendingPromotion = null;
+        promotionOverlay.classList.add('hidden');
+        window.onlineController.sendMoveToServer(from, to, promotionChoice);
+        return;
+    }
+
     const res = makeMove(gameState, from, to, promotionChoice);
 
     if (!res.success) {
@@ -289,13 +299,13 @@ function finalizeMove(from, to, promotionChoice = 'Q') {
         showMessage(`МАТ! ${winnerName} победили!`, false);
         openGameOverModal(`Мат! Победили ${winnerName}`, `Партия завершена за ${Math.ceil(gameState.moveCount / 2)} ходов.`);
         if (window.authController) {
-            window.authController.recordGameOutcome('win');
+            window.authController.recordGameOutcome(res.winner === 'white' ? 'win' : 'loss', 'checkmate', gameState.moveCount);
         }
     } else if (res.status === 'stalemate') {
         showMessage('ПАТ! Ничья.', false);
         openGameOverModal('Пат! Ничья', 'У игрока нет доступных ходов, но король не находится под шахом.');
         if (window.authController) {
-            window.authController.recordGameOutcome('draw');
+            window.authController.recordGameOutcome('draw', 'stalemate', gameState.moveCount);
         }
     } else if (res.status === 'check') {
         showMessage(`Ход ${res.san}. Внимание: ШАХ!`);
@@ -359,6 +369,13 @@ function handleSquareClick(r, c) {
 
     if (pendingPromotion) return; // Wait for promotion dialog
 
+    // Online game validation
+    if (window.onlineController && window.onlineController.isOnlineMatch) {
+        if (!window.onlineController.canMoveSquare(r, c)) {
+            return;
+        }
+    }
+
     const clickedSquare = coordsToAlgebraic(r, c);
     const piece = gameState.board[r][c];
     const currentTurn = gameState.turn;
@@ -368,6 +385,16 @@ function handleSquareClick(r, c) {
         if (!piece) return;
 
         const pieceColor = piece[0] === 'w' ? 'white' : 'black';
+
+        // Online mode: enforce choosing only the player's own pieces
+        if (window.onlineController && window.onlineController.isOnlineMatch) {
+            const myColor = window.onlineController.activeRoom?.color;
+            if (pieceColor !== myColor) {
+                showMessage(`Вы играете за ${myColor === 'white' ? 'белых' : 'черных'}! Нельзя ходить фигурами соперника.`, true);
+                return;
+            }
+        }
+
         if (pieceColor !== currentTurn) {
             showMessage(`Сейчас ход ${currentTurn === 'white' ? 'белых' : 'черных'}!`, true);
             return;
@@ -395,6 +422,10 @@ function handleSquareClick(r, c) {
 
     // Clicking another friendly piece -> switch selection
     if (piece && (piece[0] === 'w' ? 'white' : 'black') === currentTurn) {
+        if (window.onlineController && window.onlineController.isOnlineMatch) {
+            const myColor = window.onlineController.activeRoom?.color;
+            if ((piece[0] === 'w' ? 'white' : 'black') !== myColor) return;
+        }
         selectedSquare = clickedSquare;
         legalMoves = getLegalMovesForSquare(gameState, r, c);
         render();
@@ -419,6 +450,11 @@ function handleSquareClick(r, c) {
  * Reset Game
  */
 function resetGame() {
+    if (window.onlineController && window.onlineController.isOnlineMatch) {
+        showMessage('В онлайн-партии используйте кнопку «Сдаться» или «Выйти».', true);
+        return;
+    }
+
     if (gameState.history.length > 0) {
         if (!confirm('Начать новую партию? Текущий прогресс будет сброшен.')) return;
     }

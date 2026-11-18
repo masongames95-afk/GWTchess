@@ -113,7 +113,8 @@ class JsonDatabase {
             username: user.username,
             createdAt: user.createdAt,
             stats: user.stats || { wins: 0, losses: 0, draws: 0, total: 0 },
-            savedGame: user.savedGame || null
+            savedGame: user.savedGame || null,
+            games: (user.games || []).slice(0, 50)
         };
     }
 
@@ -154,7 +155,8 @@ class JsonDatabase {
                 draws: 0,
                 total: 0
             },
-            savedGame: null
+            savedGame: null,
+            games: []
         };
 
         this.data.users[key] = user;
@@ -275,6 +277,119 @@ class JsonDatabase {
 
         await this.save();
         return user.stats;
+    }
+
+    async recordFinishedGame({ whiteUsername, blackUsername, winner, reason, movesCount, history, roomCode }) {
+        const whiteKey = this.normalizeUsername(whiteUsername);
+        const blackKey = this.normalizeUsername(blackUsername);
+        const now = new Date().toISOString();
+        const gameId = 'gm_' + crypto.randomBytes(6).toString('hex');
+
+        // Determine outcome for white
+        let whiteOutcome = 'draw';
+        if (winner === 'white') whiteOutcome = 'win';
+        else if (winner === 'black') whiteOutcome = 'loss';
+
+        // Determine outcome for black
+        let blackOutcome = 'draw';
+        if (winner === 'black') blackOutcome = 'win';
+        else if (winner === 'white') blackOutcome = 'loss';
+
+        const whiteUser = this.data.users[whiteKey];
+        if (whiteUser) {
+            if (!whiteUser.games) whiteUser.games = [];
+            if (!whiteUser.stats) whiteUser.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+
+            whiteUser.games.unshift({
+                id: gameId,
+                date: now,
+                opponent: blackUsername || 'Соперник',
+                color: 'white',
+                result: whiteOutcome,
+                winner: winner || 'draw',
+                reason: reason || 'unknown',
+                movesCount: typeof movesCount === 'number' ? movesCount : 0,
+                roomCode: roomCode || null
+            });
+            if (whiteUser.games.length > 100) whiteUser.games.length = 100;
+
+            if (whiteOutcome === 'win') whiteUser.stats.wins += 1;
+            else if (whiteOutcome === 'loss') whiteUser.stats.losses += 1;
+            else whiteUser.stats.draws += 1;
+            whiteUser.stats.total += 1;
+        }
+
+        const blackUser = this.data.users[blackKey];
+        if (blackUser) {
+            if (!blackUser.games) blackUser.games = [];
+            if (!blackUser.stats) blackUser.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+
+            blackUser.games.unshift({
+                id: gameId,
+                date: now,
+                opponent: whiteUsername || 'Соперник',
+                color: 'black',
+                result: blackOutcome,
+                winner: winner || 'draw',
+                reason: reason || 'unknown',
+                movesCount: typeof movesCount === 'number' ? movesCount : 0,
+                roomCode: roomCode || null
+            });
+            if (blackUser.games.length > 100) blackUser.games.length = 100;
+
+            if (blackOutcome === 'win') blackUser.stats.wins += 1;
+            else if (blackOutcome === 'loss') blackUser.stats.losses += 1;
+            else blackUser.stats.draws += 1;
+            blackUser.stats.total += 1;
+        }
+
+        await this.save();
+        return {
+            gameId,
+            whiteStats: whiteUser ? whiteUser.stats : null,
+            blackStats: blackUser ? blackUser.stats : null
+        };
+    }
+
+    async recordLocalGame(usernameKey, { outcome, reason, movesCount }) {
+        const user = this.data.users[usernameKey];
+        if (!user) return null;
+
+        if (!user.games) user.games = [];
+        if (!user.stats) user.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+
+        const gameId = 'loc_' + crypto.randomBytes(6).toString('hex');
+        const now = new Date().toISOString();
+
+        user.games.unshift({
+            id: gameId,
+            date: now,
+            opponent: 'Локальная партия',
+            color: outcome === 'win' ? 'white' : 'unknown',
+            result: outcome,
+            winner: outcome === 'win' ? 'white' : (outcome === 'loss' ? 'black' : 'draw'),
+            reason: reason || 'checkmate',
+            movesCount: typeof movesCount === 'number' ? movesCount : 0,
+            roomCode: null
+        });
+        if (user.games.length > 100) user.games.length = 100;
+
+        if (outcome === 'win') user.stats.wins += 1;
+        else if (outcome === 'loss') user.stats.losses += 1;
+        else if (outcome === 'draw') user.stats.draws += 1;
+        user.stats.total += 1;
+
+        await this.save();
+        return {
+            stats: user.stats,
+            games: user.games.slice(0, 50)
+        };
+    }
+
+    getUserGames(usernameKey) {
+        const user = this.data.users[usernameKey];
+        if (!user) return [];
+        return (user.games || []).slice(0, 50);
     }
 }
 

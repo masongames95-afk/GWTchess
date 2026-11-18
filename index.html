@@ -41,11 +41,12 @@
                         <span class="btn-icon">👤</span> Войти
                     </button>
                     <div id="user-badge" class="user-badge hidden">
-                        <div class="user-info-text">
+                        <div class="user-info-text clickable-user-info" id="user-info-clickable" title="Нажмите, чтобы открыть профиль и историю игр">
                             <span class="user-icon">👤</span>
                             <span id="user-display-name" class="user-name">Гость</span>
                             <span id="user-stats-pill" class="stats-pill" title="Победы / Поражения / Ничьи">0 В • 0 П • 0 Н</span>
                         </div>
+                        <button id="btn-open-profile" class="btn btn-outline btn-xs" title="История сыгранных партий и статистика">📊 Профиль</button>
                         <button id="btn-cloud-save" class="btn btn-outline btn-xs" title="Сохранить текущую игру в базу данных">💾 Сохранить</button>
                         <button id="btn-logout" class="btn btn-outline btn-xs" title="Выйти из аккаунта">Выйти</button>
                     </div>
@@ -57,6 +58,20 @@
         <main class="game-layout">
             <!-- Left: Chessboard Column -->
             <section class="board-column">
+                <!-- Online Match Banner -->
+                <div id="online-game-banner" class="online-game-banner hidden">
+                    <div class="banner-left">
+                        <span class="live-dot pulse"></span>
+                        <span class="banner-room-label">Комната: <strong id="banner-room-code">------</strong></span>
+                        <span class="banner-role-badge" id="banner-role-badge">⚪ Вы: Белые</span>
+                    </div>
+                    <div class="banner-right">
+                        <span id="online-status-text" class="online-status-text">Ожидание хода соперника...</span>
+                        <button id="btn-online-resign" class="btn btn-danger btn-xs" title="Сдаться в этой партии">🏳️ Сдаться</button>
+                        <button id="btn-online-leave" class="btn btn-outline btn-xs" title="Покинуть онлайн-игру">🚪 Выйти</button>
+                    </div>
+                </div>
+
                 <!-- Opponent Player Bar (Black default) -->
                 <div class="player-bar" id="player-top">
                     <div class="player-info">
@@ -123,6 +138,10 @@
                             <span class="btn-icon">⇄</span> Перевернуть доску
                         </button>
                     </div>
+
+                    <button id="btn-open-online" class="btn btn-primary btn-block online-cta-btn">
+                        <span class="btn-icon">🌐</span> Онлайн-игра по коду комнаты
+                    </button>
 
                     <div class="secondary-actions">
                         <button id="btn-export-json" class="btn btn-outline btn-sm">
@@ -229,9 +248,126 @@
         </div>
     </div>
 
-    <!-- Engine & UI Scripts -->
+    <!-- User Profile Modal Overlay -->
+    <div id="profile-overlay" class="auth-overlay hidden">
+        <div class="auth-modal profile-modal-card">
+            <div class="auth-modal-header">
+                <div class="profile-header-meta">
+                    <span class="profile-avatar-icon">👤</span>
+                    <div>
+                        <h2 id="profile-username" class="profile-username-title">Имя игрока</h2>
+                        <span id="profile-created-date" class="profile-subtext">В игре с: —</span>
+                    </div>
+                </div>
+                <button id="btn-close-profile" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+            </div>
+
+            <div class="profile-modal-body">
+                <!-- Stats Summary Grid -->
+                <div class="profile-stats-grid">
+                    <div class="stat-card card-wins">
+                        <span class="stat-num" id="stat-wins-num">0</span>
+                        <span class="stat-lbl">Побед</span>
+                    </div>
+                    <div class="stat-card card-losses">
+                        <span class="stat-num" id="stat-losses-num">0</span>
+                        <span class="stat-lbl">Поражений</span>
+                    </div>
+                    <div class="stat-card card-draws">
+                        <span class="stat-num" id="stat-draws-num">0</span>
+                        <span class="stat-lbl">Ничьих</span>
+                    </div>
+                    <div class="stat-card card-winrate">
+                        <span class="stat-num" id="stat-winrate-num">0%</span>
+                        <span class="stat-lbl">Винрейт</span>
+                    </div>
+                </div>
+
+                <!-- Games History Section -->
+                <div class="profile-history-header">
+                    <h3>История сыгранных партий</h3>
+                    <span id="profile-games-count" class="badge-mini">0 партий</span>
+                </div>
+
+                <div class="profile-games-container">
+                    <div id="profile-games-list" class="profile-games-list">
+                        <!-- Populated dynamically via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Online Game Lobby Modal Overlay -->
+    <div id="online-overlay" class="auth-overlay hidden">
+        <div class="auth-modal online-lobby-modal">
+            <div class="auth-modal-header">
+                <div class="auth-tabs">
+                    <button id="tab-create-room" class="auth-tab active" type="button">Создать комнату</button>
+                    <button id="tab-join-room" class="auth-tab" type="button">Войти по коду</button>
+                </div>
+                <button id="btn-close-online" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+            </div>
+
+            <div class="auth-modal-body">
+                <!-- Tab 1: Create Room Pane -->
+                <div id="pane-create-room" class="online-pane">
+                    <div id="create-room-initial">
+                        <p class="pane-hint">
+                            Создайте партию и получите 6-значный код комнаты. Передайте этот код сопернику для совместной игры онлайн.
+                        </p>
+                        <button id="btn-create-room-action" class="btn btn-primary btn-block">
+                            ✨ Сгенерировать код комнаты
+                        </button>
+                    </div>
+
+                    <div id="create-room-active" class="room-created-box hidden">
+                        <span class="code-headline">Код вашей комнаты:</span>
+                        <div class="code-highlight-wrapper">
+                            <span id="created-room-code" class="room-code-tag">------</span>
+                            <button id="btn-copy-code" class="btn btn-secondary btn-sm" type="button">
+                                📋 Копировать код
+                            </button>
+                        </div>
+                        <div class="link-copy-row">
+                            <button id="btn-copy-link" class="btn btn-outline btn-xs" type="button">
+                                🔗 Скопировать ссылку на партию
+                            </button>
+                        </div>
+                        <div class="pulse-waiting-row">
+                            <span class="live-dot pulse"></span>
+                            <span id="waiting-room-status">Ожидание подключения соперника...</span>
+                        </div>
+                        <p class="waiting-subhint">
+                            Как только второй игрок войдет по коду, партия начнется автоматически.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Tab 2: Join Room Pane -->
+                <div id="pane-join-room" class="online-pane hidden">
+                    <p class="pane-hint">
+                        Введите 6-значный код комнаты, полученный от создателя партии:
+                    </p>
+                    <form id="form-join-room" class="auth-form">
+                        <div class="form-group">
+                            <label for="join-room-code-input">Код комнаты</label>
+                            <input type="text" id="join-room-code-input" class="auth-input code-input" placeholder="НАПРИМЕР: 7K9X2B" maxlength="6" autocomplete="off" required>
+                        </div>
+                        <div id="join-room-error" class="form-error hidden"></div>
+                        <button type="submit" id="btn-submit-join-room" class="btn btn-primary btn-block">
+                            🚀 Присоединиться к игре
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engine, Auth, Online & UI Scripts -->
     <script src="js/engine.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/online.js"></script>
     <script src="js/app.js"></script>
 </body>
 </html>

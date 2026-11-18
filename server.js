@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { URL } = require('node:url');
 const { db } = require('./src/db.js');
+const { rooms } = require('./src/rooms.js');
 
 const PORT = parseInt(process.env.PORT, 10) || 3000;
 const PUBLIC_DIR = __dirname;
@@ -33,7 +34,7 @@ function parseCookies(req) {
     return list;
 }
 
-function getSessionToken(req) {
+function getSessionToken(req, parsedUrl = null) {
     const cookies = parseCookies(req);
     if (cookies.session_id) {
         return cookies.session_id;
@@ -41,6 +42,10 @@ function getSessionToken(req) {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith('Bearer ')) {
         return authHeader.substring(7).trim();
+    }
+    if (parsedUrl && parsedUrl.searchParams) {
+        const queryToken = parsedUrl.searchParams.get('token');
+        if (queryToken) return queryToken.trim();
     }
     return null;
 }
@@ -119,9 +124,15 @@ function serveStatic(req, res, pathname) {
 }
 
 const server = http.createServer(async (req, res) => {
-    // CORS headers for local dev convenience
-    res.setHeader('Access-Control-Allow-Origin', req.headers.origin || '*');
-    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    // CORS & Private Network Access headers
+    const origin = req.headers.origin;
+    if (origin && origin !== 'null') {
+        res.setHeader('Access-Control-Allow-Origin', origin);
+        res.setHeader('Access-Control-Allow-Credentials', 'true');
+    } else {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+    }
+    res.setHeader('Access-Control-Allow-Private-Network', 'true');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 
@@ -326,6 +337,216 @@ const server = http.createServer(async (req, res) => {
                 success: true,
                 stats: updatedStats
             });
+        }
+
+        // 9. Get user game history (GET /api/user/games)
+        if (pathname === '/api/user/games' && req.method === 'GET') {
+            const token = getSessionToken(req, parsedUrl);
+            const user = db.getUserBySession(token);
+            if (!user) {
+                return sendJson(res, 401, {
+                    success: false,
+                    error: 'Необходимо войти в аккаунт.'
+                });
+            }
+
+            const games = db.getUserGames(db.normalizeUsername(user.username));
+            return sendJson(res, 200, {
+                success: true,
+                username: user.username,
+                stats: user.stats,
+                games
+            });
+        }
+
+        // 10. Record local game into user profile (POST /api/user/record-game)
+        if (pathname === '/api/user/record-game' && req.method === 'POST') {
+            const token = getSessionToken(req, parsedUrl);
+            const user = db.getUserBySession(token);
+            if (!user) {
+                return sendJson(res, 401, {
+                    success: false,
+                    error: 'Необходимо войти в аккаунт.'
+                });
+            }
+
+            const body = await parseJsonBody(req);
+            const { outcome, reason, movesCount } = body;
+            if (!['win', 'loss', 'draw'].includes(outcome)) {
+                return sendJson(res, 400, {
+                    success: false,
+                    error: 'Неверный результат партии.'
+                });
+            }
+
+            const result = await db.recordLocalGame(db.normalizeUsername(user.username), {
+                outcome,
+                reason,
+                movesCount
+            });
+
+            return sendJson(res, 200, {
+                success: true,
+                ...result
+            });
+        }
+
+        // --- ONLINE MULTIPLAYER ROOMS API ---
+
+        // 11. Create room with generated code (POST /api/rooms/create)
+        if (pathname === '/api/rooms/create' && req.method === 'POST') {
+            const token = getSessionToken(req, parsedUrl);
+            const user = db.getUserBySession(token);
+            if (!user) {
+                return sendJson(res, 401, {
+                    success: false,
+                    error: 'Для создания онлайн-игры необходимо войти в аккаунт.'
+                });
+            }
+
+            try {
+                const roomData = rooms.createRoom(user);
+                return sendJson(res, 201, {
+                    success: true,
+                    room: roomData
+                });
+            } catch (err) {
+                return sendJson(res, 400, {
+                    success: false,
+                    error: err.message
+                });
+            }
+        }
+
+        // 12. Join room by code (POST /api/rooms/join)
+        if (pathname === '/api/rooms/join' && req.method === 'POST') {
+            const token = getSessionToken(req, parsedUrl);
+            const user = db.getUserBySession(token);
+            if (!user) {
+                return sendJson(res, 401, {
+                    success: false,
+                    error: 'Для присоединения к игре необходимо войти в аккаунт.'
+                });
+            }
+
+            const body = await parseJsonBody(req);
+            const code = body.code;
+            if (!code) {
+                return sendJson(res, 400, {
+                    success: false,
+                    error: 'Укажите код комнаты.'
+                });
+            }
+
+            try {
+                const joined = rooms.joinRoom(code, user);
+                return sendJson(res, 200, {
+                    success: true,
+                    ...joined
+                });
+            } catch (err) {
+                const status = (err.code === 'ROOM_NOT_FOUND') ? 404 : 400;
+                return sendJson(res, status, {
+                    success: false,
+                    error: err.message,
+                    code: err.code
+                });
+            }
+        }
+
+        // Match /api/rooms/:code/*
+        const roomMatch = pathname.match(/^\/api\/rooms\/([A-Za-z0-9]+)(\/.*)?$/);
+        if (roomMatch) {
+            const roomCode = roomMatch[1].toUpperCase();
+            const subpath = roomMatch[2] || '';
+
+            // 13. Room SSE Stream (GET /api/rooms/:code/events)
+            if (subpath === '/events' && req.method === 'GET') {
+                const token = getSessionToken(req, parsedUrl);
+                const user = db.getUserBySession(token);
+                if (!user) {
+                    res.writeHead(401, { 'Content-Type': 'application/json; charset=utf-8' });
+                    res.end(JSON.stringify({ success: false, error: 'Требуется авторизация.' }));
+                    return;
+                }
+
+                return rooms.addSSEClient(roomCode, res, user);
+            }
+
+            // 14. Get Room State (GET /api/rooms/:code)
+            if ((subpath === '' || subpath === '/') && req.method === 'GET') {
+                const token = getSessionToken(req, parsedUrl);
+                const user = db.getUserBySession(token);
+                const room = rooms.getRoom(roomCode);
+
+                if (!room) {
+                    return sendJson(res, 404, {
+                        success: false,
+                        error: `Комната "${roomCode}" не найдена.`
+                    });
+                }
+
+                return sendJson(res, 200, {
+                    success: true,
+                    room: rooms.getPublicRoom(room, user)
+                });
+            }
+
+            // 15. Make Move in Room (POST /api/rooms/:code/move)
+            if (subpath === '/move' && req.method === 'POST') {
+                const token = getSessionToken(req, parsedUrl);
+                const user = db.getUserBySession(token);
+                if (!user) {
+                    return sendJson(res, 401, {
+                        success: false,
+                        error: 'Необходимо войти в аккаунт.'
+                    });
+                }
+
+                const body = await parseJsonBody(req);
+                const { from, to, promotionChoice } = body;
+
+                if (!from || !to) {
+                    return sendJson(res, 400, {
+                        success: false,
+                        error: 'Укажите координаты from и to.'
+                    });
+                }
+
+                try {
+                    const result = await rooms.handleMove(roomCode, user, from, to, promotionChoice);
+                    return sendJson(res, 200, result);
+                } catch (err) {
+                    return sendJson(res, 400, {
+                        success: false,
+                        error: err.message,
+                        code: err.code
+                    });
+                }
+            }
+
+            // 16. Resign in Room (POST /api/rooms/:code/resign)
+            if (subpath === '/resign' && req.method === 'POST') {
+                const token = getSessionToken(req, parsedUrl);
+                const user = db.getUserBySession(token);
+                if (!user) {
+                    return sendJson(res, 401, {
+                        success: false,
+                        error: 'Необходимо войти в аккаунт.'
+                    });
+                }
+
+                try {
+                    const result = await rooms.handleResign(roomCode, user);
+                    return sendJson(res, 200, result);
+                } catch (err) {
+                    return sendJson(res, 400, {
+                        success: false,
+                        error: err.message,
+                        code: err.code
+                    });
+                }
+            }
         }
 
         // --- STATIC FILE SERVING ---

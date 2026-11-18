@@ -1,15 +1,17 @@
-# Chess in Browser (FIDE-compliant Engine + JSON DB Authentication & Persistence)
+# Chess in Browser (FIDE-compliant Engine + JSON DB Authentication & Online Multiplayer)
 
 ## 1. Project Overview & Architecture
-Full-stack browser-based chess game featuring FIDE-compliant rules, open-source PNG piece aesthetics, and a lightweight zero-dependency Node.js server with a JSON file database for user registration, authentication, live account checking, and cloud state persistence.
+Full-stack browser-based chess game featuring FIDE-compliant rules, open-source PNG piece aesthetics, and a lightweight zero-dependency Node.js server with a JSON file database for user registration, authentication, live account checking, cloud state persistence, online multiplayer between authenticated users, and persistent game history recording.
 
-- **Frontend Target**: Pure vanilla JavaScript (`js/engine.js`, `js/app.js`, `js/auth.js`) with responsive CSS3.
+- **Frontend Target**: Pure vanilla JavaScript (`js/engine.js`, `js/app.js`, `js/auth.js`, `js/online.js`) with responsive CSS3.
 - **Backend & Database**:
   - Zero-dependency Node.js HTTP server (`server.js`) on port 3000.
+  - In-memory online multiplayer room manager (`src/rooms.js`) with Server-Sent Events (SSE) real-time event streaming (`/api/rooms/:code/events`).
+  - Authoritative server-side chess rule validation using `js/engine.js`.
   - JSON file-based database (`data/users_db.json`) via `src/db.js` with atomic file writes to prevent race conditions.
   - Cryptographically secure password hashing using `node:crypto` (`scryptSync` with unique random salt per user).
   - Constant-time password validation (`timingSafeEqual`) against timing attacks.
-  - Cryptographically generated session tokens (32 bytes hex) sent via `Set-Cookie: session_id=...; HttpOnly; SameSite=Lax`.
+  - Cryptographically generated session tokens (32 bytes hex) sent via `Set-Cookie: session_id=...; HttpOnly; SameSite=Lax` and Bearer Authorization headers.
 - **Core Engine**: Pure vanilla JavaScript (`js/engine.js`) providing complete FIDE rules implementation:
   - Strict legal move generation (pins, discovered attacks, double checks).
   - King safety validation (`isSquareAttacked`, `isKingInCheck`).
@@ -27,14 +29,26 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
   - `POST /api/user/save-game`: Persist active game state to the user's account in the JSON database.
   - `GET /api/user/load-game`: Load user's saved game from the JSON database.
   - `POST /api/user/record-result`: Update wins/losses/draws stats in the JSON database upon checkmate/stalemate.
+  - `GET /api/user/games`: Retrieve current user's match history and complete statistics.
+  - `POST /api/user/record-game`: Record finished local or custom game into profile history.
+- **Online Multiplayer Rooms API (`src/rooms.js`)**:
+  - `POST /api/rooms/create`: Generates unique 6-character room code (e.g. `K9X2B4`), sets creator as White, initial chess state.
+  - `POST /api/rooms/join`: Allows another authenticated user to join by room code as Black; triggers match start.
+  - `GET /api/rooms/:code`: Retrieves public room state and participant details.
+  - `GET /api/rooms/:code/events`: Native Server-Sent Events (SSE) stream for real-time move delivery, room starts, and game-over broadcasts.
+  - `POST /api/rooms/:code/move`: Validates player turn and executes moves authoritatively on the server, broadcasting updates.
+  - `POST /api/rooms/:code/resign`: Allows a player to resign, awarding victory to the opponent and persisting results.
+  - Auto-recording: Every checkmate, stalemate, or resignation in an online room automatically records into both users' profile history (`user.games`) in `users_db.json`.
 - **UI & Presentation**:
   - Open-access Colin M.L. Burnett chess piece set in high-resolution PNG (`assets/pieces/*.png`).
   - Modern tournament wooden theme with coordinate indicators on square corners.
-  - Header profile badge with live stats (`X В • Y П • Z Н`), "Сохранить в БД" and "Выйти".
-  - Fullscreen Auth Modal with tabs for "Вход" and "Регистрация".
-  - Real-time debounced username availability validation on registration input with status badges (✓ свободно, ✗ уже существует).
-  - Interactive Pawn Promotion Modal & Game Over Modal.
-  - Zero-dependency Web Audio API synthesizer for sound effects.
+  - Header profile badge with live stats (`X В • Y П • Z Н`), "📊 Профиль", "💾 Сохранить" and "Выйти".
+  - Clickable Profile Modal with detailed stats cards (Wins, Losses, Draws, Winrate %) and full chronological game history list.
+  - Online Lobby Modal with tabs for "Создать комнату" (generates 6-character code with one-click copy & link sharing) and "Войти по коду".
+  - Active Online Match Banner with pulse indicator, room code, role badge, and Resign / Leave controls.
+  - Automatic board flipping for Black player in online matches.
+  - Direct room link support (`?room=ABC123`).
+  - Zero-dependency Web Audio API synthesizer for move, capture, check, and game-over sound effects.
 
 ## 2. Directory Structure
 ```
@@ -43,30 +57,35 @@ chess/
 ├── README.md                # Quickstart & documentation
 ├── package.json             # NPM package scripts (start, test)
 ├── server.js                # Zero-dependency Node.js HTTP server & API router
-├── index.html               # Main entry point & Auth modal
+├── index.html               # Main entry point & Modals (Auth, Profile, Online Lobby)
 ├── data/
 │   └── users_db.json        # JSON database for accounts, password hashes, sessions & saved games
 ├── src/
-│   └── db.js                # Database layer (JSON storage, crypto scrypt hashing, sessions)
+│   ├── db.js                # Database layer (JSON storage, crypto scrypt hashing, sessions, game history)
+│   └── rooms.js             # Online multiplayer room management (SSE, 6-char codes, authoritative moves)
 ├── assets/
 │   └── pieces/              # High-res 256x256 PNG piece assets (Wikimedia/Cburnett)
 │       ├── wK.png, wQ.png, wR.png, wB.png, wN.png, wP.png
 │       └── bK.png, bQ.png, bR.png, bB.png, bN.png, bP.png
 ├── css/
-│   └── style.css            # Chessboard, pieces, auth modal, user badge, and control styles
+│   └── style.css            # Chessboard, pieces, auth modal, profile modal, online lobby, and banner styles
 ├── js/
 │   ├── engine.js            # Core chess engine (FIDE rules, checks, mate, SAN)
-│   ├── auth.js              # Auth controller, live existence checking, session sync
+│   ├── auth.js              # Auth controller, live existence checking, session sync, profile modal
+│   ├── online.js            # Online multiplayer controller (room codes, SSE, real-time sync, turns)
 │   └── app.js               # UI controller, audio, rendering, events, JSON I/O
 └── test/
     ├── db_test.js           # Unit test for JSON DB & crypto password hashing
     ├── server_test.js       # Integration test for HTTP server and auth endpoints
+    ├── rooms_test.js        # Unit test for room codes, turn enforcement, checkmate & resignation
+    ├── online_api_test.js   # Integration test for online multiplayer REST API & profile persistence
     ├── chess_test.js        # Engine unit tests (moves, fool's mate, pin, castling, en passant)
     └── more_tests.js        # Extended tests (scholar's mate, double check, underpromotion)
 ```
 
 ## 3. Technology Stack & Environment
 - **Runtime**: Node.js v24.21.0 (Zero external dependencies).
+- **Multiplayer Transport**: Server-Sent Events (SSE) via native Node.js HTTP stream + REST move submission.
 - **Database**: JSON file storage (`data/users_db.json`) with atomic `.tmp` rename commits.
 - **Security**: `node:crypto` (`scryptSync` + 16-byte random salt, `timingSafeEqual`).
 - **Frontend**: HTML5, CSS3 Grid/Flexbox, Vanilla ES6+ JavaScript.
@@ -87,6 +106,14 @@ chess/
 - [x] Implemented cloud game save (`POST /api/user/save-game`) and load (`GET /api/user/load-game`).
 - [x] Implemented game results tracking (`POST /api/user/record-result`) updating wins/losses/draws.
 - [x] Built frontend Auth Modal with tabs, debounced live username check indicator, and profile badge.
-- [x] Connected game over outcomes (checkmate/stalemate) to automatically update user stats.
-- [x] Added `test/db_test.js` and `test/server_test.js` covering 100% of auth and DB flows.
-- [x] Verified full test suite (`npm test`) passes with 0 failures.
+- [x] Added persistent game history recording in profile (`user.games`) in `src/db.js`.
+- [x] Created profile game history endpoints (`GET /api/user/games` and `POST /api/user/record-game`).
+- [x] Built interactive Profile Modal with statistics cards (Wins, Losses, Draws, Winrate %) and full games history list.
+- [x] Built Online Multiplayer Room module (`src/rooms.js`) with 6-character room code generator (unambiguous charset).
+- [x] Implemented Server-Sent Events (SSE) stream (`GET /api/rooms/:code/events`) for zero-dependency real-time sync.
+- [x] Implemented authoritative server move validation, turn enforcement, and automatic match result recording.
+- [x] Created frontend Online Lobby modal (`js/online.js`) with room creation, copy code / link, and room joining.
+- [x] Built active Online Match banner with connection indicator, room code, role badge, and resignation/leave actions.
+- [x] Added auto-flipping board for Black in online games.
+- [x] Added automated test suites: `test/rooms_test.js` and `test/online_api_test.js`.
+- [x] Verified full test suite (`npm test`) passes with 0 failures across all 6 test suites.

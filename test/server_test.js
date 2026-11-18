@@ -1,7 +1,12 @@
 const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
+const { db } = require('../src/db.js');
 const server = require('../server.js');
+
+// Reset db before test run
+db.data = { users: {}, sessions: {} };
+db.saveSync();
 
 const PORT = 3099;
 process.env.PORT = PORT;
