@@ -123,3 +123,4 @@ chess/
 - [x] Added automated test suites: `test/rooms_test.js` and `test/online_api_test.js`.
 - [x] Verified full test suite (`npm test`) passes with 0 failures across all 6 test suites.
 - [x] Redesigned UI/UX: chess.com-inspired layout, distinct Cold Nordic Glacier & Arctic Frost palette, active turn glows on player bars, overlapping captured piece trays, and modernized notation sheet history table.
+- [x] Added cache-busting asset query parameters (`?v=2.2`) to `index.html` to guarantee immediate stylesheet updates in client browsers.
