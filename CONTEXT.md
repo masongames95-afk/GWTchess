@@ -140,9 +140,12 @@ chess/
   - Interactive modal with real-time category switching, gold/silver/bronze rank badges, current user highlight, personal rank banner, and guest-login prompt.
   - Profile modal enhancement showing player's all-time fastest checkmate record.
   - Full automated unit & integration test suite (`test/leaderboard_test.js`) verified with `npm test`.
-- [x] Render Deployment & CLI Setup:
-  - Installed official Render CLI (v2.38.0) via Windows WinGet.
-  - Added `render.yaml` Blueprint specification for automated zero-downtime deployment (Node.js web service, free tier, region frankfurt, build `npm install`, start `npm start`).
-  - Added dedicated health check endpoint `GET /healthz` and `GET /health` to `server.js` for Render zero-downtime health checking.
-  - Configured `server.listen(PORT, '0.0.0.0')` to bind cleanly across all cloud network interfaces.
-  - Specified `"engines": { "node": ">=20.0.0" }` in `package.json`.
+- [x] Render Deployment & Production PostgreSQL Setup:
+  - Installed official Render CLI (v2.38.0).
+  - Provisioned Render PostgreSQL managed database `chess-db` (ID: `dpg-dc0ksnek1f9s739fo0m0-a`, Postgres v18, region frankfurt, plan free) in project `GWTChess`.
+  - Added hybrid storage architecture to `src/db.js`: automatic PostgreSQL integration via `pg.Pool` with JSON fallback for local testing/development.
+  - Implemented transactional database persistence (`chess_users`, `chess_sessions`) and automatic migration of local JSON database accounts into PostgreSQL on first boot.
+  - Deployed Render Web Service `chess-online` (ID: `srv-dc0kuku7bikc73b4gf9g`, plan free, region frankfurt, Node.js runtime) connected via secure internal connection string to `chess-db`.
+  - Configured zero-downtime healthcheck on `/healthz`.
+  - Production URL live and verified: `https://chess-online-yxfk.onrender.com`.
+  - Verified live registration, authentication, leaderboard API, and PostgreSQL persistence with 0 errors.
