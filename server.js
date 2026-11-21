@@ -147,6 +147,11 @@ const server = http.createServer(async (req, res) => {
     const pathname = parsedUrl.pathname;
 
     try {
+        // Health check for Render / cloud orchestrators
+        if ((pathname === '/healthz' || pathname === '/health') && req.method === 'GET') {
+            return sendJson(res, 200, { status: 'ok', timestamp: Date.now() });
+        }
+
         // --- API ROUTES ---
 
         // 1. Check if username exists (GET /api/auth/check-username?username=...)
@@ -355,6 +360,7 @@ const server = http.createServer(async (req, res) => {
                 success: true,
                 username: user.username,
                 stats: user.stats,
+                records: user.records || {},
                 games
             });
         }
@@ -549,6 +555,27 @@ const server = http.createServer(async (req, res) => {
             }
         }
 
+        // --- LEADERBOARD & RECORDS API ---
+
+        // 17. Leaderboard rankings (GET /api/leaderboard)
+        if (pathname === '/api/leaderboard' && req.method === 'GET') {
+            const limit = Math.min(Math.max(parseInt(parsedUrl.searchParams.get('limit') || '10', 10), 1), 50);
+            const leaderboards = db.getLeaderboards(limit);
+
+            const token = getSessionToken(req, parsedUrl);
+            const currentUser = db.getUserBySession(token);
+            let userRank = null;
+            if (currentUser) {
+                userRank = db.getUserLeaderboardRank(currentUser.username);
+            }
+
+            return sendJson(res, 200, {
+                success: true,
+                leaderboards,
+                userRank
+            });
+        }
+
         // --- STATIC FILE SERVING ---
         if (req.method === 'GET') {
             return serveStatic(req, res, pathname);
@@ -565,13 +592,20 @@ const server = http.createServer(async (req, res) => {
 });
 
 if (require.main === module) {
-    server.listen(PORT, () => {
-        console.log(`========================================`);
-        console.log(` ♟️  Шахматный сервер запущен!`);
-        console.log(` 🌐 Адрес: http://localhost:${PORT}`);
-        console.log(` 📁 База данных: data/users_db.json`);
-        console.log(`========================================`);
-    });
+    (async () => {
+        try {
+            await db.init();
+        } catch (err) {
+            console.error('[DB Startup Error]', err);
+        }
+        server.listen(PORT, '0.0.0.0', () => {
+            console.log(`========================================`);
+            console.log(` ♟️  Шахматный сервер запущен!`);
+            console.log(` 🌐 Адрес: http://0.0.0.0:${PORT}`);
+            console.log(` 📁 База данных: ${process.env.DATABASE_URL ? 'PostgreSQL' : 'data/users_db.json'}`);
+            console.log(`========================================`);
+        });
+    })();
 }
 
 module.exports = server;

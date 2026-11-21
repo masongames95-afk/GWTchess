@@ -2,18 +2,121 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 
+let pg = null;
+try {
+    pg = require('pg');
+} catch (e) {
+    // pg is optional for offline/local JSON testing
+}
+
 const DB_PATH = path.join(__dirname, '..', 'data', 'users_db.json');
 
 class JsonDatabase {
-    constructor(filePath = DB_PATH) {
+    constructor(filePath = DB_PATH, options = {}) {
         this.filePath = filePath;
+        this.databaseUrl = options.databaseUrl || process.env.DATABASE_URL || null;
         this.data = {
             users: {},
             sessions: {}
         };
         this.isWriting = false;
         this.writeQueue = [];
+        this.pgPool = null;
+        this.isPostgres = Boolean(this.databaseUrl && pg);
+
+        if (this.isPostgres) {
+            const sslOption = this.databaseUrl.includes('localhost') ? false : { rejectUnauthorized: false };
+            this.pgPool = new pg.Pool({
+                connectionString: this.databaseUrl,
+                ssl: sslOption
+            });
+        }
+
         this.load();
+    }
+
+    async init() {
+        if (!this.isPostgres || !this.pgPool) {
+            return;
+        }
+
+        try {
+            await this.pgPool.query(`
+                CREATE TABLE IF NOT EXISTS chess_users (
+                    username_key TEXT PRIMARY KEY,
+                    data JSONB NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS chess_sessions (
+                    token TEXT PRIMARY KEY,
+                    data JSONB NOT NULL
+                );
+            `);
+
+            const usersRes = await this.pgPool.query('SELECT username_key, data FROM chess_users');
+            const sessionsRes = await this.pgPool.query('SELECT token, data FROM chess_sessions');
+
+            for (const row of usersRes.rows) {
+                this.data.users[row.username_key] = row.data;
+            }
+            for (const row of sessionsRes.rows) {
+                this.data.sessions[row.token] = row.data;
+            }
+
+            console.log(`[DB] Connected to PostgreSQL. Loaded ${usersRes.rows.length} users and ${sessionsRes.rows.length} sessions.`);
+
+            if (usersRes.rows.length === 0 && Object.keys(this.data.users).length > 0) {
+                console.log(`[DB] Migrating ${Object.keys(this.data.users).length} local users into PostgreSQL...`);
+                await this.persistToPostgres();
+                console.log(`[DB] Migration to PostgreSQL completed.`);
+            }
+        } catch (err) {
+            console.error('[DB] PostgreSQL init failed:', err.message);
+        }
+    }
+
+    async persistToPostgres() {
+        if (!this.isPostgres || !this.pgPool) return;
+        const client = await this.pgPool.connect();
+        try {
+            await client.query('BEGIN');
+            for (const [key, user] of Object.entries(this.data.users)) {
+                await client.query(
+                    `INSERT INTO chess_users (username_key, data)
+                     VALUES ($1, $2)
+                     ON CONFLICT (username_key) DO UPDATE SET data = $2`,
+                    [key, JSON.stringify(user)]
+                );
+            }
+            for (const [token, sess] of Object.entries(this.data.sessions)) {
+                await client.query(
+                    `INSERT INTO chess_sessions (token, data)
+                     VALUES ($1, $2)
+                     ON CONFLICT (token) DO UPDATE SET data = $2`,
+                    [token, JSON.stringify(sess)]
+                );
+            }
+            const activeTokens = Object.keys(this.data.sessions);
+            if (activeTokens.length > 0) {
+                await client.query(
+                    `DELETE FROM chess_sessions WHERE NOT (token = ANY($1))`,
+                    [activeTokens]
+                );
+            } else {
+                await client.query(`DELETE FROM chess_sessions`);
+            }
+            await client.query('COMMIT');
+        } catch (err) {
+            await client.query('ROLLBACK');
+            console.error('[DB] Error saving to PostgreSQL:', err.message);
+        } finally {
+            client.release();
+        }
+    }
+
+    async close() {
+        if (this.pgPool) {
+            await this.pgPool.end();
+        }
     }
 
     load() {
@@ -50,6 +153,14 @@ class JsonDatabase {
     }
 
     async save() {
+        if (this.isPostgres && this.pgPool) {
+            try {
+                await this.persistToPostgres();
+            } catch (err) {
+                console.error('[DB] Error persisting to PostgreSQL:', err.message);
+            }
+        }
+
         if (this.isWriting) {
             return new Promise((resolve, reject) => {
                 this.writeQueue.push({ resolve, reject });
@@ -113,6 +224,7 @@ class JsonDatabase {
             username: user.username,
             createdAt: user.createdAt,
             stats: user.stats || { wins: 0, losses: 0, draws: 0, total: 0 },
+            records: user.records || {},
             savedGame: user.savedGame || null,
             games: (user.games || []).slice(0, 50)
         };
@@ -155,6 +267,7 @@ class JsonDatabase {
                 draws: 0,
                 total: 0
             },
+            records: {},
             savedGame: null,
             games: []
         };
@@ -299,6 +412,7 @@ class JsonDatabase {
         if (whiteUser) {
             if (!whiteUser.games) whiteUser.games = [];
             if (!whiteUser.stats) whiteUser.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+            if (!whiteUser.records) whiteUser.records = {};
 
             whiteUser.games.unshift({
                 id: gameId,
@@ -313,9 +427,26 @@ class JsonDatabase {
             });
             if (whiteUser.games.length > 100) whiteUser.games.length = 100;
 
-            if (whiteOutcome === 'win') whiteUser.stats.wins += 1;
-            else if (whiteOutcome === 'loss') whiteUser.stats.losses += 1;
-            else whiteUser.stats.draws += 1;
+            if (whiteOutcome === 'win') {
+                whiteUser.stats.wins += 1;
+                if (reason === 'checkmate' && typeof movesCount === 'number' && movesCount > 0) {
+                    const currentBest = whiteUser.records.fastestMate;
+                    if (!currentBest || movesCount < currentBest.movesCount) {
+                        whiteUser.records.fastestMate = {
+                            movesCount,
+                            fullMoves: Math.ceil(movesCount / 2),
+                            opponent: blackUsername || 'Соперник',
+                            date: now,
+                            roomCode: roomCode || null,
+                            gameId
+                        };
+                    }
+                }
+            } else if (whiteOutcome === 'loss') {
+                whiteUser.stats.losses += 1;
+            } else {
+                whiteUser.stats.draws += 1;
+            }
             whiteUser.stats.total += 1;
         }
 
@@ -323,6 +454,7 @@ class JsonDatabase {
         if (blackUser) {
             if (!blackUser.games) blackUser.games = [];
             if (!blackUser.stats) blackUser.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+            if (!blackUser.records) blackUser.records = {};
 
             blackUser.games.unshift({
                 id: gameId,
@@ -337,9 +469,26 @@ class JsonDatabase {
             });
             if (blackUser.games.length > 100) blackUser.games.length = 100;
 
-            if (blackOutcome === 'win') blackUser.stats.wins += 1;
-            else if (blackOutcome === 'loss') blackUser.stats.losses += 1;
-            else blackUser.stats.draws += 1;
+            if (blackOutcome === 'win') {
+                blackUser.stats.wins += 1;
+                if (reason === 'checkmate' && typeof movesCount === 'number' && movesCount > 0) {
+                    const currentBest = blackUser.records.fastestMate;
+                    if (!currentBest || movesCount < currentBest.movesCount) {
+                        blackUser.records.fastestMate = {
+                            movesCount,
+                            fullMoves: Math.ceil(movesCount / 2),
+                            opponent: whiteUsername || 'Соперник',
+                            date: now,
+                            roomCode: roomCode || null,
+                            gameId
+                        };
+                    }
+                }
+            } else if (blackOutcome === 'loss') {
+                blackUser.stats.losses += 1;
+            } else {
+                blackUser.stats.draws += 1;
+            }
             blackUser.stats.total += 1;
         }
 
@@ -357,6 +506,7 @@ class JsonDatabase {
 
         if (!user.games) user.games = [];
         if (!user.stats) user.stats = { wins: 0, losses: 0, draws: 0, total: 0 };
+        if (!user.records) user.records = {};
 
         const gameId = 'loc_' + crypto.randomBytes(6).toString('hex');
         const now = new Date().toISOString();
@@ -374,9 +524,26 @@ class JsonDatabase {
         });
         if (user.games.length > 100) user.games.length = 100;
 
-        if (outcome === 'win') user.stats.wins += 1;
-        else if (outcome === 'loss') user.stats.losses += 1;
-        else if (outcome === 'draw') user.stats.draws += 1;
+        if (outcome === 'win') {
+            user.stats.wins += 1;
+            if (reason === 'checkmate' && typeof movesCount === 'number' && movesCount > 0) {
+                const currentBest = user.records.fastestMate;
+                if (!currentBest || movesCount < currentBest.movesCount) {
+                    user.records.fastestMate = {
+                        movesCount,
+                        fullMoves: Math.ceil(movesCount / 2),
+                        opponent: 'Локальная партия',
+                        date: now,
+                        roomCode: null,
+                        gameId
+                    };
+                }
+            }
+        } else if (outcome === 'loss') {
+            user.stats.losses += 1;
+        } else if (outcome === 'draw') {
+            user.stats.draws += 1;
+        }
         user.stats.total += 1;
 
         await this.save();
@@ -390,6 +557,125 @@ class JsonDatabase {
         const user = this.data.users[usernameKey];
         if (!user) return [];
         return (user.games || []).slice(0, 50);
+    }
+
+    getLeaderboards(limit = 10) {
+        const fastestMatesList = [];
+        const userStatsList = [];
+
+        for (const key of Object.keys(this.data.users)) {
+            const user = this.data.users[key];
+            if (!user) continue;
+
+            const stats = user.stats || { wins: 0, losses: 0, draws: 0, total: 0 };
+            const total = (stats.wins || 0) + (stats.losses || 0) + (stats.draws || 0);
+            const winrate = total > 0 ? Math.round(((stats.wins || 0) / total) * 100) : 0;
+
+            userStatsList.push({
+                username: user.username,
+                wins: stats.wins || 0,
+                losses: stats.losses || 0,
+                draws: stats.draws || 0,
+                total: total || stats.total || 0,
+                winrate,
+                createdAt: user.createdAt
+            });
+
+            // Find best checkmate for this user: either from records.fastestMate or scan user.games
+            let bestMate = user.records && user.records.fastestMate ? { ...user.records.fastestMate } : null;
+
+            if (Array.isArray(user.games)) {
+                for (const g of user.games) {
+                    if (g && g.result === 'win' && g.reason === 'checkmate' && typeof g.movesCount === 'number' && g.movesCount > 0) {
+                        if (!bestMate || g.movesCount < bestMate.movesCount) {
+                            bestMate = {
+                                movesCount: g.movesCount,
+                                fullMoves: Math.ceil(g.movesCount / 2),
+                                opponent: g.opponent || 'Соперник',
+                                date: g.date || user.createdAt,
+                                roomCode: g.roomCode || null,
+                                gameId: g.id || null
+                            };
+                        }
+                    }
+                }
+            }
+
+            if (bestMate) {
+                fastestMatesList.push({
+                    username: user.username,
+                    movesCount: bestMate.movesCount,
+                    fullMoves: bestMate.fullMoves || Math.ceil(bestMate.movesCount / 2),
+                    opponent: bestMate.opponent || 'Соперник',
+                    date: bestMate.date,
+                    roomCode: bestMate.roomCode || null
+                });
+            }
+        }
+
+        // Sort fastest mates: fewest movesCount first (ascending). Ties broken by earlier date.
+        fastestMatesList.sort((a, b) => {
+            if (a.movesCount !== b.movesCount) {
+                return a.movesCount - b.movesCount;
+            }
+            return new Date(a.date).getTime() - new Date(b.date).getTime();
+        });
+
+        // Sort by most wins: highest wins first (descending), then winrate, then total games
+        const mostWinsList = [...userStatsList].sort((a, b) => {
+            if (b.wins !== a.wins) return b.wins - a.wins;
+            if (b.winrate !== a.winrate) return b.winrate - a.winrate;
+            return b.total - a.total;
+        });
+
+        // Sort by best winrate: players with >= 1 game, highest winrate first, then wins
+        const bestWinrateList = userStatsList.filter(u => u.total > 0).sort((a, b) => {
+            if (b.winrate !== a.winrate) return b.winrate - a.winrate;
+            if (b.wins !== a.wins) return b.wins - a.wins;
+            return b.total - a.total;
+        });
+
+        // Sort by most active: highest total games first
+        const mostActiveList = [...userStatsList].sort((a, b) => {
+            if (b.total !== a.total) return b.total - a.total;
+            return b.wins - a.wins;
+        });
+
+        const assignRanks = (list) => {
+            return list.slice(0, limit).map((item, idx) => ({
+                rank: idx + 1,
+                ...item
+            }));
+        };
+
+        return {
+            fastestMates: assignRanks(fastestMatesList),
+            mostWins: assignRanks(mostWinsList),
+            bestWinrate: assignRanks(bestWinrateList),
+            mostActive: assignRanks(mostActiveList)
+        };
+    }
+
+    getUserLeaderboardRank(username) {
+        const key = this.normalizeUsername(username);
+        const user = this.data.users[key];
+        if (!user) return null;
+
+        const boards = this.getLeaderboards(1000);
+        const fastestIdx = boards.fastestMates.findIndex(item => item.username.toLowerCase() === key);
+        const winsIdx = boards.mostWins.findIndex(item => item.username.toLowerCase() === key);
+        const winrateIdx = boards.bestWinrate.findIndex(item => item.username.toLowerCase() === key);
+        const activeIdx = boards.mostActive.findIndex(item => item.username.toLowerCase() === key);
+
+        return {
+            username: user.username,
+            fastestMate: fastestIdx !== -1 ? boards.fastestMates[fastestIdx] : null,
+            fastestMateRank: fastestIdx !== -1 ? fastestIdx + 1 : null,
+            winsRank: winsIdx !== -1 ? winsIdx + 1 : null,
+            winrateRank: winrateIdx !== -1 ? winrateIdx + 1 : null,
+            activeRank: activeIdx !== -1 ? activeIdx + 1 : null,
+            stats: user.stats || { wins: 0, losses: 0, draws: 0, total: 0 }
+        };
     }
 }
 

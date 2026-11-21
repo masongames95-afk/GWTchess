@@ -5,7 +5,10 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/db_test.js && node test/server_test.js && node test/rooms_test.js && node test/online_api_test.js && node test/chess_test.js && node test/more_tests.js"
+    "test": "node test/db_test.js && node test/server_test.js && node test/rooms_test.js && node test/online_api_test.js && node test/leaderboard_test.js && node test/chess_test.js && node test/more_tests.js"
+  },
+  "engines": {
+    "node": ">=20.0.0"
   },
   "keywords": [
     "chess",
@@ -15,5 +18,8 @@
     "json-database"
   ],
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "pg": "^8.23.1"
+  }
 }

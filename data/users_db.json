@@ -1,4 +1,92 @@
 {
-  "users": {},
-  "sessions": {}
+  "users": {
+    "grandmaster1": {
+      "id": "usr_f6cf74b2ec496eb5",
+      "username": "GrandMaster1",
+      "usernameKey": "grandmaster1",
+      "passwordHash": "c1867ce534ffb154079b26460eba9228127ff619aa87ad9db01fac1114797f1c8419dce903e9e5ba2140495798b09ef9962ccd19e94cbaf6aadb684d292ccef5",
+      "salt": "cadd1afc0f8fb80fa416b503aabeadd0",
+      "createdAt": "2026-11-21T07:58:41.339Z",
+      "stats": {
+        "wins": 2,
+        "losses": 0,
+        "draws": 0,
+        "total": 2
+      },
+      "records": {
+        "fastestMate": {
+          "movesCount": 32,
+          "fullMoves": 16,
+          "opponent": "Локальная партия",
+          "date": "2026-11-21T07:58:41.385Z",
+          "roomCode": null,
+          "gameId": "loc_3f145b097f0b"
+        }
+      },
+      "savedGame": null,
+      "games": [
+        {
+          "id": "loc_3f145b097f0b",
+          "date": "2026-11-21T07:58:41.385Z",
+          "opponent": "Локальная партия",
+          "color": "white",
+          "result": "win",
+          "winner": "white",
+          "reason": "checkmate",
+          "movesCount": 32,
+          "roomCode": null
+        },
+        {
+          "id": "gm_c362effd417c",
+          "date": "2026-11-21T07:58:41.383Z",
+          "opponent": "Challenger2",
+          "color": "white",
+          "result": "win",
+          "winner": "white",
+          "reason": "resignation",
+          "movesCount": 1,
+          "roomCode": "P878SD"
+        }
+      ]
+    },
+    "challenger2": {
+      "id": "usr_425546c719d9910a",
+      "username": "Challenger2",
+      "usernameKey": "challenger2",
+      "passwordHash": "547c78b33b67d4472ff8b365d1d20d264270bbf10afe4b1a3a1b5c3d09c88797fd4c4513c1f4c5d8b3887bde5a6b820f98b0fda34acc5e043052390c2367fed0",
+      "salt": "26e0329c4c39aee9b88ae71cbd56ae76",
+      "createdAt": "2026-11-21T07:58:41.373Z",
+      "stats": {
+        "wins": 0,
+        "losses": 1,
+        "draws": 0,
+        "total": 1
+      },
+      "records": {},
+      "savedGame": null,
+      "games": [
+        {
+          "id": "gm_c362effd417c",
+          "date": "2026-11-21T07:58:41.383Z",
+          "opponent": "GrandMaster1",
+          "color": "black",
+          "result": "loss",
+          "winner": "white",
+          "reason": "resignation",
+          "movesCount": 1,
+          "roomCode": "P878SD"
+        }
+      ]
+    }
+  },
+  "sessions": {
+    "0be0d08aafdad1d6f011845cb7ec0acabff89fd01d47cf645f4962c118534f68": {
+      "usernameKey": "grandmaster1",
+      "expiresAt": 1797839921342
+    },
+    "563a0e265e751ea97722ed4f1a3acd3b6c9bd92c37140bed70335fb1ebc67a92": {
+      "usernameKey": "challenger2",
+      "expiresAt": 1797839921374
+    }
+  }
 }

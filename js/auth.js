@@ -545,6 +545,38 @@ class AuthController {
                 const winrate = total > 0 ? Math.round((stats.wins / total) * 100) : 0;
                 if (this.statWinrateNum) this.statWinrateNum.textContent = `${winrate}%`;
 
+                // Update personal record highlight
+                const profileRecordRow = document.getElementById('profile-record-row');
+                const profileFastestVal = document.getElementById('profile-fastest-mate-val');
+                let fastestMate = data.records && data.records.fastestMate ? data.records.fastestMate : null;
+                if (!fastestMate && Array.isArray(games)) {
+                    for (const g of games) {
+                        if (g && g.result === 'win' && g.reason === 'checkmate' && g.movesCount > 0) {
+                            if (!fastestMate || g.movesCount < fastestMate.movesCount) {
+                                fastestMate = { movesCount: g.movesCount, fullMoves: Math.ceil(g.movesCount / 2) };
+                            }
+                        }
+                    }
+                }
+
+                if (profileRecordRow && profileFastestVal) {
+                    if (fastestMate) {
+                        profileRecordRow.classList.remove('hidden');
+                        const full = fastestMate.fullMoves || Math.ceil(fastestMate.movesCount / 2);
+                        const plies = fastestMate.movesCount;
+                        const mod10 = full % 10;
+                        const mod100 = full % 100;
+                        let movesWord = 'ходов';
+                        if (mod100 < 11 || mod100 > 19) {
+                            if (mod10 === 1) movesWord = 'ход';
+                            else if (mod10 >= 2 && mod10 <= 4) movesWord = 'хода';
+                        }
+                        profileFastestVal.textContent = `${full} ${movesWord} (${plies} полуходов)`;
+                    } else {
+                        profileRecordRow.classList.add('hidden');
+                    }
+                }
+
                 // Update current user cache
                 this.currentUser.stats = stats;
                 this.updateUserUI();

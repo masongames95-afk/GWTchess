@@ -31,6 +31,13 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
   - `POST /api/user/record-result`: Update wins/losses/draws stats in the JSON database upon checkmate/stalemate.
   - `GET /api/user/games`: Retrieve current user's match history and complete statistics.
   - `POST /api/user/record-game`: Record finished local or custom game into profile history.
+- **Leaderboard & Hall of Fame API**:
+  - `GET /api/leaderboard`: Retrieves rankings across all registered accounts:
+    - `fastestMates`: Top accounts sorted by fewest half-moves / full moves to deliver checkmate (`movesCount` ASC).
+    - `mostWins`: Top accounts sorted by total victories (`stats.wins` DESC).
+    - `bestWinrate`: Top accounts sorted by winrate percentage (`winrate` DESC for accounts with $\ge 1$ games).
+    - `mostActive`: Top accounts sorted by total games played (`stats.total` DESC).
+    - `userRank`: Optional personal ranking and best record for authenticated session user.
 - **Online Multiplayer Rooms API (`src/rooms.js`)**:
   - `POST /api/rooms/create`: Generates unique 6-character room code (e.g. `K9X2B4`), sets creator as White, initial chess state.
   - `POST /api/rooms/join`: Allows another authenticated user to join by room code as Black; triggers match start.
@@ -60,6 +67,7 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
 chess/
 ├── CONTEXT.md               # Context ledger & architectural records
 ├── README.md                # Quickstart & documentation
+├── render.yaml              # Render Blueprint Infrastructure-as-Code specification
 ├── package.json             # NPM package scripts (start, test)
 ├── server.js                # Zero-dependency Node.js HTTP server & API router
 ├── index.html               # Main entry point & Modals (Auth, Profile, Online Lobby)
@@ -78,12 +86,14 @@ chess/
 │   ├── engine.js            # Core chess engine (FIDE rules, checks, mate, SAN)
 │   ├── auth.js              # Auth controller, live existence checking, session sync, profile modal
 │   ├── online.js            # Online multiplayer controller (room codes, SSE, real-time sync, turns)
+│   ├── leaderboard.js       # Hall of Fame & Leaderboard controller (fastest mate, wins, winrate, activity)
 │   └── app.js               # UI controller, audio, rendering, events, JSON I/O
 └── test/
     ├── db_test.js           # Unit test for JSON DB & crypto password hashing
     ├── server_test.js       # Integration test for HTTP server and auth endpoints
     ├── rooms_test.js        # Unit test for room codes, turn enforcement, checkmate & resignation
     ├── online_api_test.js   # Integration test for online multiplayer REST API & profile persistence
+    ├── leaderboard_test.js  # Unit & integration tests for Leaderboard rankings & fastest mate calculation
     ├── chess_test.js        # Engine unit tests (moves, fool's mate, pin, castling, en passant)
     └── more_tests.js        # Extended tests (scholar's mate, double check, underpromotion)
 ```
@@ -123,4 +133,16 @@ chess/
 - [x] Added automated test suites: `test/rooms_test.js` and `test/online_api_test.js`.
 - [x] Verified full test suite (`npm test`) passes with 0 failures across all 6 test suites.
 - [x] Redesigned UI/UX: chess.com-inspired layout, distinct Cold Nordic Glacier & Arctic Frost palette, active turn glows on player bars, overlapping captured piece trays, and modernized notation sheet history table.
-- [x] Added cache-busting asset query parameters (`?v=2.2`) to `index.html` to guarantee immediate stylesheet updates in client browsers.
+- [x] Added cache-busting asset query parameters (`?v=2.3`) to `index.html` to guarantee immediate stylesheet updates in client browsers.
+- [x] Implemented Leaderboard & Hall of Fame system (`src/db.js`, `server.js`, `js/leaderboard.js`, `index.html`, `css/style.css`):
+  - Track personal fastest checkmate records across both local and online multiplayer games.
+  - Multi-category leaderboards: Fastest Checkmate (fewest moves/half-moves), Most Wins, Best Winrate %, Most Active players.
+  - Interactive modal with real-time category switching, gold/silver/bronze rank badges, current user highlight, personal rank banner, and guest-login prompt.
+  - Profile modal enhancement showing player's all-time fastest checkmate record.
+  - Full automated unit & integration test suite (`test/leaderboard_test.js`) verified with `npm test`.
+- [x] Render Deployment & CLI Setup:
+  - Installed official Render CLI (v2.38.0) via Windows WinGet.
+  - Added `render.yaml` Blueprint specification for automated zero-downtime deployment (Node.js web service, free tier, region frankfurt, build `npm install`, start `npm start`).
+  - Added dedicated health check endpoint `GET /healthz` and `GET /health` to `server.js` for Render zero-downtime health checking.
+  - Configured `server.listen(PORT, '0.0.0.0')` to bind cleanly across all cloud network interfaces.
+  - Specified `"engines": { "node": ">=20.0.0" }` in `package.json`.

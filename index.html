@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Шахматы в браузере</title>
-    <link rel="stylesheet" href="css/style.css?v=2.2">
+    <link rel="stylesheet" href="css/style.css?v=2.3">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -33,6 +33,9 @@
                 </div>
                 <button id="btn-sound-toggle" class="icon-btn" title="Включить/выключить звук" aria-label="Звук">
                     🔊
+                </button>
+                <button id="btn-open-leaderboard" class="btn btn-outline btn-sm" title="Таблица рекордов и Зал славы">
+                    <span class="btn-icon">🏆</span> Рекорды
                 </button>
 
                 <!-- Auth / Profile Section -->
@@ -141,6 +144,9 @@
 
                     <button id="btn-open-online" class="btn btn-primary btn-block online-cta-btn">
                         <span class="btn-icon">🌐</span> Онлайн-игра по коду комнаты
+                    </button>
+                    <button id="btn-sidebar-leaderboard" class="btn btn-secondary btn-block leaderboard-cta-btn">
+                        <span class="btn-icon">🏆</span> Таблица рекордов
                     </button>
 
                     <div class="secondary-actions">
@@ -283,6 +289,12 @@
                     </div>
                 </div>
 
+                <!-- Personal Record Highlight -->
+                <div id="profile-record-row" class="profile-record-row hidden">
+                    <span class="record-icon">⚡</span>
+                    <span class="record-text">Личный рекорд: самый быстрый мат за <strong id="profile-fastest-mate-val">—</strong></span>
+                </div>
+
                 <!-- Games History Section -->
                 <div class="profile-history-header">
                     <h3>История сыгранных партий</h3>
@@ -364,10 +376,58 @@
         </div>
     </div>
 
-    <!-- Engine, Auth, Online & UI Scripts -->
-    <script src="js/engine.js?v=2.2"></script>
-    <script src="js/auth.js?v=2.2"></script>
-    <script src="js/online.js?v=2.2"></script>
-    <script src="js/app.js?v=2.2"></script>
+    <!-- Leaderboard Modal Overlay (Records, Fastest Checkmate, Top Wins, Winrate, Activity) -->
+    <div id="leaderboard-overlay" class="auth-overlay hidden">
+        <div class="auth-modal leaderboard-modal-card">
+            <div class="auth-modal-header">
+                <div class="leaderboard-header-title">
+                    <span class="leaderboard-header-icon">🏆</span>
+                    <div>
+                        <h2>Таблица рекордов</h2>
+                        <span class="leaderboard-subtitle">Зал славы и лучшие достижения игроков</span>
+                    </div>
+                </div>
+                <div class="leaderboard-header-actions">
+                    <button id="btn-refresh-leaderboard" class="icon-btn-subtle" title="Обновить таблицу" aria-label="Обновить">🔄</button>
+                    <button id="btn-close-leaderboard" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+                </div>
+            </div>
+
+            <!-- Category Navigation Tabs -->
+            <div class="leaderboard-nav-tabs">
+                <button id="tab-lb-fastest-mate" class="auth-tab active" type="button">⚡ Самый быстрый мат</button>
+                <button id="tab-lb-wins" class="auth-tab" type="button">🏆 Топ по победам</button>
+                <button id="tab-lb-winrate" class="auth-tab" type="button">🎯 Винрейт</button>
+                <button id="tab-lb-active" class="auth-tab" type="button">⚔️ Активность</button>
+            </div>
+
+            <div class="leaderboard-modal-body">
+                <!-- Current User Summary Banner -->
+                <div id="lb-user-summary" class="lb-user-summary hidden"></div>
+
+                <!-- Leaderboard Table -->
+                <div class="leaderboard-table-wrapper">
+                    <table class="leaderboard-table" id="leaderboard-table">
+                        <thead id="lb-thead">
+                            <!-- Populated dynamically via js/leaderboard.js -->
+                        </thead>
+                        <tbody id="lb-tbody">
+                            <!-- Populated dynamically via js/leaderboard.js -->
+                        </tbody>
+                    </table>
+                    <div id="lb-empty-msg" class="leaderboard-empty hidden">
+                        Пока нет записей в этой категории.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Engine, Auth, Online, Leaderboard & UI Scripts -->
+    <script src="js/engine.js?v=2.3"></script>
+    <script src="js/auth.js?v=2.3"></script>
+    <script src="js/online.js?v=2.3"></script>
+    <script src="js/leaderboard.js?v=2.3"></script>
+    <script src="js/app.js?v=2.3"></script>
 </body>
 </html>

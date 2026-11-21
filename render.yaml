@@ -1,0 +1,24 @@
+databases:
+  - name: chess-db
+    databaseName: chess
+    user: chess_user
+    plan: free
+    region: frankfurt
+
+services:
+  - type: web
+    name: chess-online
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /healthz
+    autoDeployTrigger: commit
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chess-db
+          property: connectionString
