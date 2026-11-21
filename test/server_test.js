@@ -4,9 +4,22 @@ const path = require('node:path');
 const { db } = require('../src/db.js');
 const server = require('../server.js');
 
-// Reset db before test run
+// Isolate db to temporary test file during test run
+const originalDbPath = db.filePath;
+const originalData = JSON.parse(JSON.stringify(db.data));
+const testDbPath = path.join(__dirname, 'test_server_db.json');
+db.filePath = testDbPath;
 db.data = { users: {}, sessions: {} };
 db.saveSync();
+
+function cleanup() {
+    db.filePath = originalDbPath;
+    db.data = originalData;
+    db.saveSync();
+    if (fs.existsSync(testDbPath)) {
+        try { fs.unlinkSync(testDbPath); } catch (e) {}
+    }
+}
 
 const PORT = 3099;
 process.env.PORT = PORT;
@@ -191,9 +204,11 @@ server.listen(PORT, async () => {
         assert(res.body.authenticated === false, 'Session is now invalid');
 
         console.log('\nALL SERVER HTTP TESTS PASSED SUCCESSFULLY!');
+        cleanup();
         process.exit(0);
     } catch (err) {
         console.error('Test failed:', err);
+        cleanup();
         process.exit(1);
     }
 });

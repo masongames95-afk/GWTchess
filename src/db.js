@@ -55,7 +55,12 @@ class JsonDatabase {
             const usersRes = await this.pgPool.query('SELECT username_key, data FROM chess_users');
             const sessionsRes = await this.pgPool.query('SELECT token, data FROM chess_sessions');
 
+            const initialLocalUsers = { ...this.data.users };
+            const initialLocalSessions = { ...this.data.sessions };
+
+            const pgUserKeys = new Set();
             for (const row of usersRes.rows) {
+                pgUserKeys.add(row.username_key);
                 this.data.users[row.username_key] = row.data;
             }
             for (const row of sessionsRes.rows) {
@@ -64,10 +69,18 @@ class JsonDatabase {
 
             console.log(`[DB] Connected to PostgreSQL. Loaded ${usersRes.rows.length} users and ${sessionsRes.rows.length} sessions.`);
 
-            if (usersRes.rows.length === 0 && Object.keys(this.data.users).length > 0) {
-                console.log(`[DB] Migrating ${Object.keys(this.data.users).length} local users into PostgreSQL...`);
+            let hasNewUsers = false;
+            for (const [key, user] of Object.entries(initialLocalUsers)) {
+                if (!pgUserKeys.has(key)) {
+                    console.log(`[DB] Syncing missing user "${key}" from local JSON into PostgreSQL...`);
+                    this.data.users[key] = user;
+                    hasNewUsers = true;
+                }
+            }
+
+            if (hasNewUsers) {
                 await this.persistToPostgres();
-                console.log(`[DB] Migration to PostgreSQL completed.`);
+                console.log(`[DB] PostgreSQL sync completed.`);
             }
         } catch (err) {
             console.error('[DB] PostgreSQL init failed:', err.message);

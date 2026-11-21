@@ -1,4 +1,6 @@
 const http = require('node:http');
+const fs = require('node:fs');
+const path = require('node:path');
 const { db } = require('../src/db.js');
 const server = require('../server.js');
 
@@ -45,8 +47,22 @@ function request(options, postData = null) {
 server.listen(PORT, async () => {
     console.log(`Online API Test server running on port ${PORT}...`);
 
+    // Isolate DB to temporary test file during tests
+    const originalDbPath = db.filePath;
+    const originalData = JSON.parse(JSON.stringify(db.data));
+    const testDbPath = path.join(__dirname, 'test_online_api_db.json');
+
+    function cleanup() {
+        db.filePath = originalDbPath;
+        db.data = originalData;
+        db.saveSync();
+        if (fs.existsSync(testDbPath)) {
+            try { fs.unlinkSync(testDbPath); } catch (e) {}
+        }
+    }
+
     try {
-        // Reset DB before tests
+        db.filePath = testDbPath;
         db.data = { users: {}, sessions: {} };
         db.saveSync();
 
@@ -218,9 +234,11 @@ server.listen(PORT, async () => {
         assert(res.body.games.length === 2, 'Total games in profile now 2');
 
         console.log('\nALL ONLINE API TESTS PASSED SUCCESSFULLY!');
+        cleanup();
         process.exit(0);
     } catch (err) {
         console.error('Test failed with error:', err);
+        cleanup();
         process.exit(1);
     }
 });

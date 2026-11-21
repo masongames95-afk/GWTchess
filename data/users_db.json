@@ -1,12 +1,12 @@
 {
   "users": {
     "grandmaster1": {
-      "id": "usr_f6cf74b2ec496eb5",
+      "id": "usr_e4283bbf0fb42743",
       "username": "GrandMaster1",
       "usernameKey": "grandmaster1",
-      "passwordHash": "c1867ce534ffb154079b26460eba9228127ff619aa87ad9db01fac1114797f1c8419dce903e9e5ba2140495798b09ef9962ccd19e94cbaf6aadb684d292ccef5",
-      "salt": "cadd1afc0f8fb80fa416b503aabeadd0",
-      "createdAt": "2026-11-21T07:58:41.339Z",
+      "passwordHash": "024d892fce38f18678170de985e130641addbfc0cbafc56af1b04cb4ad0deca6a0d2f0552e68923bdb6fb1961c1a3903dd8ea21f58c9db617f12bf0ade63be13",
+      "salt": "1550b44090fdc92b51b2e280e2cd9ffe",
+      "createdAt": "2026-11-21T07:45:36.941Z",
       "stats": {
         "wins": 2,
         "losses": 0,
@@ -18,16 +18,16 @@
           "movesCount": 32,
           "fullMoves": 16,
           "opponent": "Локальная партия",
-          "date": "2026-11-21T07:58:41.385Z",
+          "date": "2026-11-21T07:45:36.987Z",
           "roomCode": null,
-          "gameId": "loc_3f145b097f0b"
+          "gameId": "loc_bdfdfc896cc9"
         }
       },
       "savedGame": null,
       "games": [
         {
-          "id": "loc_3f145b097f0b",
-          "date": "2026-11-21T07:58:41.385Z",
+          "id": "loc_bdfdfc896cc9",
+          "date": "2026-11-21T07:45:36.987Z",
           "opponent": "Локальная партия",
           "color": "white",
           "result": "win",
@@ -37,25 +37,25 @@
           "roomCode": null
         },
         {
-          "id": "gm_c362effd417c",
-          "date": "2026-11-21T07:58:41.383Z",
+          "id": "gm_37d7793b1ace",
+          "date": "2026-11-21T07:45:36.983Z",
           "opponent": "Challenger2",
           "color": "white",
           "result": "win",
           "winner": "white",
           "reason": "resignation",
           "movesCount": 1,
-          "roomCode": "P878SD"
+          "roomCode": "WXYRNQ"
         }
       ]
     },
     "challenger2": {
-      "id": "usr_425546c719d9910a",
+      "id": "usr_b22321aed56b12fe",
       "username": "Challenger2",
       "usernameKey": "challenger2",
-      "passwordHash": "547c78b33b67d4472ff8b365d1d20d264270bbf10afe4b1a3a1b5c3d09c88797fd4c4513c1f4c5d8b3887bde5a6b820f98b0fda34acc5e043052390c2367fed0",
-      "salt": "26e0329c4c39aee9b88ae71cbd56ae76",
-      "createdAt": "2026-11-21T07:58:41.373Z",
+      "passwordHash": "5cc4dad65603ddb96cd9a2b32e82ab96699af7e6fa1d01cf59abf3a232683388d73c94adfc5d1c229610b84c2374d76c28d98fbf975471cf9fcd133f51a25699",
+      "salt": "991fce6f4ea7e9d545a1d894fbe03ae0",
+      "createdAt": "2026-11-21T07:45:36.974Z",
       "stats": {
         "wins": 0,
         "losses": 1,
@@ -66,27 +66,69 @@
       "savedGame": null,
       "games": [
         {
-          "id": "gm_c362effd417c",
-          "date": "2026-11-21T07:58:41.383Z",
+          "id": "gm_37d7793b1ace",
+          "date": "2026-11-21T07:45:36.983Z",
           "opponent": "GrandMaster1",
           "color": "black",
           "result": "loss",
           "winner": "white",
           "reason": "resignation",
           "movesCount": 1,
-          "roomCode": "P878SD"
+          "roomCode": "WXYRNQ"
+        }
+      ]
+    },
+    "novenkiy32": {
+      "id": "usr_aec6a13db38194e2",
+      "username": "novenkiy32",
+      "usernameKey": "novenkiy32",
+      "passwordHash": "88674e3e4e7c3f5bf7119f39fda7cf3746957d854937238eb6a61a5298216a942ca3cf13f046244faedbe3b4b80e6650cdb50461d822bb7ba5afa4ce9e80bdef",
+      "salt": "5da41fa030a38ce2b5a25f1841fe4369",
+      "createdAt": "2026-11-21T07:45:57.679Z",
+      "stats": {
+        "wins": 1,
+        "losses": 0,
+        "draws": 0,
+        "total": 1
+      },
+      "records": {
+        "fastestMate": {
+          "movesCount": 7,
+          "fullMoves": 4,
+          "opponent": "Локальная партия",
+          "date": "2026-11-21T07:55:05.517Z",
+          "roomCode": null,
+          "gameId": "loc_70e49aaabdde"
+        }
+      },
+      "savedGame": null,
+      "games": [
+        {
+          "id": "loc_70e49aaabdde",
+          "date": "2026-11-21T07:55:05.517Z",
+          "opponent": "Локальная партия",
+          "color": "white",
+          "result": "win",
+          "winner": "white",
+          "reason": "checkmate",
+          "movesCount": 7,
+          "roomCode": null
         }
       ]
     }
   },
   "sessions": {
-    "0be0d08aafdad1d6f011845cb7ec0acabff89fd01d47cf645f4962c118534f68": {
+    "69d200d455fa8d7c5d1d399f9b892e53e81b5fab5c7c3c971a250f4dbcb33217": {
       "usernameKey": "grandmaster1",
-      "expiresAt": 1797839921342
+      "expiresAt": 1797839136944
     },
-    "563a0e265e751ea97722ed4f1a3acd3b6c9bd92c37140bed70335fb1ebc67a92": {
+    "ef2fdf7145cd2e566b27ef9035b369f321c8f0a5faf7597c9cd694d7c3ede257": {
       "usernameKey": "challenger2",
-      "expiresAt": 1797839921374
+      "expiresAt": 1797839136976
+    },
+    "46417a650783419b55f71f0c57725777cb3747e9a9860c169c8b12467f80ac2a": {
+      "usernameKey": "novenkiy32",
+      "expiresAt": 1797839157682
     }
   }
 }
