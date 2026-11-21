@@ -95,10 +95,12 @@ body {
     display: flex;
     align-items: center;
     gap: 14px;
+    min-width: 0;
 }
 
 .brand-icon {
     width: 44px;
+    flex-shrink: 0;
     height: 44px;
     background: linear-gradient(135deg, #1e293b, #0f172a);
     border-radius: 10px;
@@ -139,6 +141,8 @@ body {
     align-items: center;
     gap: 12px;
     flex-wrap: wrap;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .turn-badge {
@@ -220,6 +224,8 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
+    max-width: 100%;
 }
 
 .user-badge {
@@ -230,6 +236,9 @@ body {
     display: flex;
     align-items: center;
     gap: 10px;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
 }
 
@@ -237,12 +246,16 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
+    min-width: 0;
+    max-width: 100%;
+    flex-wrap: wrap;
 }
 
 .user-name {
     font-weight: 700;
     font-size: 0.9rem;
     color: var(--accent-cyan);
+    overflow-wrap: anywhere;
 }
 
 .stats-pill {
@@ -278,7 +291,14 @@ body {
 
 @media (max-width: 960px) {
     .game-layout {
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .board-column,
+    .sidebar {
+        width: 100%;
+        max-width: 600px;
+        margin-inline: auto;
     }
 }
 
@@ -289,6 +309,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    min-width: 0;
 }
 
 /* Online Match Banner */
@@ -392,6 +413,7 @@ body {
 
 .player-avatar {
     width: 34px;
+    flex-shrink: 0;
     height: 34px;
     border-radius: 8px;
     background: #152034;
@@ -413,6 +435,7 @@ body {
     font-size: 0.95rem;
     font-weight: 700;
     color: var(--text-primary);
+    overflow-wrap: anywhere;
 }
 
 /* Captured Pieces Tray (Chess.com Slight Overlap) */
@@ -474,8 +497,8 @@ body {
 
 .chessboard {
     display: grid;
-    grid-template-columns: repeat(8, minmax(38px, 68px));
-    grid-template-rows: repeat(8, minmax(38px, 68px));
+    grid-template-columns: repeat(8, minmax(0, 1fr));
+    grid-template-rows: repeat(8, minmax(0, 1fr));
     width: 100%;
     aspect-ratio: 1 / 1;
     border-radius: 4px;
@@ -485,11 +508,14 @@ body {
 /* Squares */
 .square {
     position: relative;
+    min-width: 0;
+    min-height: 0;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     transition: background-color 0.1s ease;
+    touch-action: manipulation;
 }
 
 .square.light {
@@ -740,6 +766,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    min-width: 0;
 }
 
 .card {
@@ -1060,6 +1087,8 @@ body {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
 }
 
 .auth-modal-header {
@@ -1069,6 +1098,7 @@ body {
     border-bottom: 1px solid rgba(148, 163, 184, 0.14);
     background: rgba(0, 0, 0, 0.25);
     padding: 0 18px;
+    flex-shrink: 0;
 }
 
 .auth-tabs {
@@ -1115,6 +1145,8 @@ body {
 
 .auth-modal-body {
     padding: 24px;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .auth-form {
@@ -1151,6 +1183,8 @@ body {
     outline: none;
     transition: border-color 0.2s, box-shadow 0.2s;
     font-family: inherit;
+    min-width: 0;
+    width: 100%;
 }
 
 .auth-input:focus {
@@ -1235,6 +1269,7 @@ body {
     font-size: 1.3rem;
     font-weight: 700;
     color: var(--text-primary);
+    overflow-wrap: anywhere;
 }
 
 .profile-subtext {
@@ -1247,6 +1282,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .profile-stats-grid {
@@ -1598,6 +1635,7 @@ body {
     border-bottom: 1px solid rgba(148, 163, 184, 0.15);
     overflow-x: auto;
     scrollbar-width: thin;
+    flex-shrink: 0;
 }
 
 .leaderboard-nav-tabs .auth-tab {
@@ -1613,6 +1651,8 @@ body {
     display: flex;
     flex-direction: column;
     gap: 14px;
+    min-height: 0;
+    overflow-y: auto;
 }
 
 .lb-user-summary {
@@ -1862,6 +1902,392 @@ body {
         min-width: 110px;
         font-size: 0.78rem;
         padding: 10px 8px;
+    }
+}
+
+/* Phone layouts: keep the full chessboard playable without horizontal scrolling. */
+@media (max-width: 640px) {
+    body {
+        justify-content: stretch;
+        padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(14px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    .app-container {
+        gap: 14px;
+        min-width: 0;
+    }
+
+    .app-header {
+        padding: 12px;
+        gap: 12px;
+        border-radius: 10px;
+    }
+
+    .brand {
+        min-width: 0;
+        gap: 10px;
+    }
+
+    .brand-icon {
+        width: 40px;
+        height: 40px;
+        flex: 0 0 40px;
+    }
+
+    .brand h1 {
+        font-size: 1.1rem;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .sub-badge {
+        font-size: 0.68rem;
+    }
+
+    .header-status {
+        display: flex;
+        width: 100%;
+        gap: 8px;
+    }
+
+    .turn-badge {
+        min-height: 44px;
+        padding-inline: 12px;
+    }
+
+    .header-status > .btn,
+    .icon-btn {
+        min-height: 44px;
+    }
+
+    .header-auth {
+        min-width: 0;
+        flex: 1 1 auto;
+    }
+
+    .user-badge {
+        flex-wrap: wrap;
+        max-width: 100%;
+        border-radius: 10px;
+    }
+
+    .user-info-text {
+        min-width: 0;
+        max-width: 100%;
+        flex-wrap: wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .game-layout,
+    .board-column,
+    .sidebar {
+        min-width: 0;
+        width: 100%;
+    }
+
+    .game-layout {
+        gap: 16px;
+    }
+
+    .board-column {
+        gap: 8px;
+    }
+
+    .online-game-banner,
+    .banner-left,
+    .banner-right {
+        min-width: 0;
+        flex-wrap: wrap;
+    }
+
+    .online-game-banner {
+        padding: 10px;
+    }
+
+    .banner-right {
+        width: 100%;
+    }
+
+    .online-status-text {
+        flex: 1 1 100%;
+        overflow-wrap: anywhere;
+    }
+
+    .player-bar,
+    .player-info,
+    .player-meta {
+        min-width: 0;
+        gap: 8px;
+    }
+
+    .player-bar {
+        padding-inline: 9px;
+    }
+
+    .player-meta {
+        flex-wrap: wrap;
+    }
+
+    .captured-row {
+        min-width: 0;
+    }
+
+    .board-frame {
+        min-width: 0;
+        padding: 5px;
+        border-radius: 8px;
+    }
+
+    .chessboard {
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-template-rows: repeat(8, minmax(0, 1fr));
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .square .coord-rank,
+    .square .coord-file {
+        font-size: 0.65rem;
+    }
+
+    .sidebar {
+        gap: 12px;
+    }
+
+    .card {
+        min-width: 0;
+        padding: 15px;
+        border-radius: 10px;
+    }
+
+    .buttons-grid,
+    .secondary-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .btn {
+        min-height: 44px;
+        padding-inline: 10px;
+    }
+
+    .game-settings select,
+    .auth-input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    .history-table-wrapper {
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .modal-overlay {
+        padding: 12px;
+    }
+
+    .promotion-modal {
+        padding: 16px 12px;
+    }
+
+    .promotion-choices {
+        gap: 6px;
+    }
+
+    .promo-choice-btn {
+        min-width: 0;
+    }
+
+    .promo-choice-btn img {
+        width: 40px;
+        height: 40px;
+        max-width: 100%;
+        object-fit: contain;
+    }
+
+    .game-over-modal {
+        padding: 20px 14px;
+    }
+
+    .auth-overlay {
+        align-items: flex-start;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+    }
+
+    .auth-modal,
+    .leaderboard-modal-card {
+        width: 100%;
+        max-width: 100%;
+        max-height: calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+        margin: auto 0;
+        border-radius: 12px;
+    }
+
+    .auth-modal-header {
+        min-width: 0;
+        padding-inline: 10px;
+    }
+
+    .auth-tabs {
+        min-width: 0;
+        gap: 0;
+    }
+
+    .auth-tab {
+        min-height: 44px;
+        padding: 10px 12px;
+        font-size: 0.88rem;
+    }
+
+    .modal-close-btn {
+        width: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .icon-btn,
+    .icon-btn-subtle {
+        width: 44px;
+        height: 44px;
+        flex-shrink: 0;
+    }
+
+    .profile-header-meta,
+    .profile-header-meta > div,
+    .leaderboard-header-title,
+    .leaderboard-header-title > div {
+        min-width: 0;
+    }
+
+    .profile-avatar-icon,
+    .leaderboard-header-icon,
+    .leaderboard-header-actions {
+        flex-shrink: 0;
+    }
+
+    .leaderboard-header-title h2 {
+        font-size: 1rem;
+    }
+
+    .leaderboard-subtitle {
+        font-size: 0.72rem;
+    }
+
+    .leaderboard-header-icon {
+        display: none;
+    }
+
+    .auth-modal-body,
+    .profile-modal-body,
+    .leaderboard-modal-body {
+        min-height: 0;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        padding: 16px;
+    }
+
+    .profile-stats-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .game-item-card {
+        min-width: 0;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .game-item-left,
+    .game-item-right {
+        min-width: 0;
+        flex-wrap: wrap;
+        overflow-wrap: anywhere;
+    }
+
+    .code-highlight-wrapper {
+        max-width: 100%;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 12px;
+    }
+
+    .room-code-tag {
+        font-size: 1.8rem;
+        letter-spacing: 3px;
+    }
+
+    .leaderboard-nav-tabs {
+        max-width: 100%;
+        overscroll-behavior-x: contain;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .leaderboard-modal-body {
+        padding: 14px 12px;
+    }
+
+    .leaderboard-nav-tabs .auth-tab {
+        min-height: 44px;
+        padding: 10px 12px;
+    }
+
+    .leaderboard-table-wrapper {
+        max-width: 100%;
+        overflow: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
+@media (pointer: coarse) {
+    .btn,
+    .auth-tab,
+    .modal-close-btn,
+    .icon-btn,
+    .icon-btn-subtle {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: manipulation;
+    }
+
+    .auth-input,
+    .game-settings select {
+        font-size: 16px;
+    }
+}
+
+@media (hover: none) {
+    .square:hover .piece-img {
+        transform: none;
+    }
+}
+
+@media (max-width: 380px) {
+    .app-header {
+        padding: 10px;
+    }
+
+    .brand h1 {
+        font-size: 1rem;
+    }
+
+    .turn-badge {
+        padding-inline: 9px;
+        font-size: 0.82rem;
+    }
+
+    .card {
+        padding: 12px;
+    }
+
+    .buttons-grid,
+    .secondary-actions {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .auth-overlay {
+        padding-inline: max(8px, env(safe-area-inset-left)) max(8px, env(safe-area-inset-right));
     }
 }
 
