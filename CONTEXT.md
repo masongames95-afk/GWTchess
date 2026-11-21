@@ -149,3 +149,7 @@ chess/
   - Configured zero-downtime healthcheck on `/healthz`.
   - Production URL live and verified: `https://chess-online-yxfk.onrender.com`.
   - Verified live registration, authentication, leaderboard API, and PostgreSQL persistence with 0 errors.
+- [x] Cloud Database Sync & Test Isolation Fix:
+  - Fixed sync gap in `src/db.js`: `init()` now automatically checks for missing accounts in local JSON and migrates them into cloud PostgreSQL.
+  - Isolated test databases in `test/server_test.js` and `test/online_api_test.js` to temporary files so running `npm test` never wipes production/dev data in `data/users_db.json`.
+  - Restored and verified user account `novenkiy32` across both local database and live Render PostgreSQL (`exists: true`, leaderboard Rank #1 fastest checkmate).
