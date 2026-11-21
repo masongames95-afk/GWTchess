@@ -85,15 +85,18 @@ function parseJsonBody(req) {
 }
 
 function serveStatic(req, res, pathname) {
+    // Default to index.html for root path
+    const requestedPath = (pathname === '/' || pathname === '' || pathname === '\\') ? 'index.html' : pathname;
+
     // Prevent accessing private database files
-    const normalized = path.normalize(pathname).replace(/^(\.\.[\/\\])+/, '');
+    const normalized = path.normalize(requestedPath).replace(/^(\.\.[\/\\])+/, '');
     if (normalized.startsWith('data' + path.sep) || normalized === 'data') {
         res.writeHead(403, { 'Content-Type': 'text/plain; charset=utf-8' });
         res.end('Access Denied');
         return;
     }
 
-    let filePath = path.join(PUBLIC_DIR, normalized === '/' || normalized === '' ? 'index.html' : normalized);
+    let filePath = path.join(PUBLIC_DIR, (normalized === '.' || normalized === path.sep || normalized === '/' || normalized === '') ? 'index.html' : normalized);
 
     // Prevent directory traversal
     if (!filePath.startsWith(PUBLIC_DIR)) {
