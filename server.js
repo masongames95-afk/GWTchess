@@ -414,7 +414,7 @@ const server = http.createServer(async (req, res) => {
             }
 
             try {
-                const roomData = rooms.createRoom(user);
+                const roomData = await rooms.createRoom(user);
                 return sendJson(res, 201, {
                     success: true,
                     room: roomData
@@ -448,7 +448,7 @@ const server = http.createServer(async (req, res) => {
             }
 
             try {
-                const joined = rooms.joinRoom(code, user);
+                const joined = await rooms.joinRoom(code, user);
                 return sendJson(res, 200, {
                     success: true,
                     ...joined
@@ -479,14 +479,14 @@ const server = http.createServer(async (req, res) => {
                     return;
                 }
 
-                return rooms.addSSEClient(roomCode, res, user);
+                return await rooms.addSSEClient(roomCode, res, user);
             }
 
             // 14. Get Room State (GET /api/rooms/:code)
             if ((subpath === '' || subpath === '/') && req.method === 'GET') {
                 const token = getSessionToken(req, parsedUrl);
                 const user = db.getUserBySession(token);
-                const room = rooms.getRoom(roomCode);
+                const room = await rooms.getRoom(roomCode);
 
                 if (!room) {
                     return sendJson(res, 404, {
@@ -598,6 +598,7 @@ if (require.main === module) {
     (async () => {
         try {
             await db.init();
+            await rooms.cleanupOldRooms();
         } catch (err) {
             console.error('[DB Startup Error]', err);
         }

@@ -6,7 +6,7 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
 - **Frontend Target**: Pure vanilla JavaScript (`js/engine.js`, `js/app.js`, `js/auth.js`, `js/online.js`) with responsive CSS3.
 - **Backend & Database**:
   - Zero-dependency Node.js HTTP server (`server.js`) on port 3000.
-  - In-memory online multiplayer room manager (`src/rooms.js`) with Server-Sent Events (SSE) real-time event streaming (`/api/rooms/:code/events`).
+  - Persistent online multiplayer rooms (`src/rooms.js`) in PostgreSQL (`chess_rooms`) with a local JSON fallback and Server-Sent Events (SSE) real-time event streaming (`/api/rooms/:code/events`).
   - Authoritative server-side chess rule validation using `js/engine.js`.
   - JSON file-based database (`data/users_db.json`) via `src/db.js` with atomic file writes to prevent race conditions.
   - Cryptographically secure password hashing using `node:crypto` (`scryptSync` with unique random salt per user).
@@ -45,6 +45,7 @@ Full-stack browser-based chess game featuring FIDE-compliant rules, open-source 
   - `GET /api/rooms/:code/events`: Native Server-Sent Events (SSE) stream for real-time move delivery, room starts, and game-over broadcasts.
   - `POST /api/rooms/:code/move`: Validates player turn and executes moves authoritatively on the server, broadcasting updates.
   - `POST /api/rooms/:code/resign`: Allows a player to resign, awarding victory to the opponent and persisting results.
+  - Rooms restore from storage after server restarts, including participants, board position, and turn. Completed rooms are deleted after recording results; abandoned rooms expire after four hours without activity and with no connected SSE clients.
   - Auto-recording: Every checkmate, stalemate, or resignation in an online room automatically records into both users' profile history (`user.games`) in `users_db.json`.
 - **UI & Presentation**:
   - Open-access Colin M.L. Burnett chess piece set in high-resolution PNG (`assets/pieces/*.png`).

@@ -2,6 +2,7 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { db } = require('../src/db.js');
+const { rooms } = require('../src/rooms.js');
 const server = require('../server.js');
 
 const PORT = 3098;
@@ -160,6 +161,7 @@ server.listen(PORT, async () => {
 
         // 7. GrandMaster1 moves e2 -> e4
         console.log('\n--- STEP 7: GrandMaster1 moves e2-e4 ---');
+        rooms.rooms.clear(); // Simulate server memory loss before the first move
         res = await request({
             host: 'localhost',
             port: PORT,
@@ -185,6 +187,13 @@ server.listen(PORT, async () => {
         assert(res.statusCode === 200, 'Resign request succeeded');
         assert(res.body.result.winner === 'white', 'Winner is white');
         assert(res.body.result.reason === 'resignation', 'Reason is resignation');
+        res = await request({
+            host: 'localhost',
+            port: PORT,
+            path: `/api/rooms/${roomCode}`,
+            method: 'GET'
+        });
+        assert(res.statusCode === 404, 'Finished room was deleted');
 
         // 9. Check GrandMaster1 game history in profile
         console.log('\n--- STEP 9: Verify profile games history for winner ---');

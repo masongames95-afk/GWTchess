@@ -27,7 +27,7 @@ async function runTests() {
     const rm = new RoomManager(db);
 
     console.log('\n--- TEST 1: Generate room code & create room ---');
-    const created = rm.createRoom(user1);
+    const created = await rm.createRoom(user1);
     assert(created.code && created.code.length === 6, 'Room code has 6 characters: ' + created.code);
     assert(created.color === 'white', 'Creator is assigned White');
     assert(created.status === 'waiting', 'Room status is waiting');
@@ -35,7 +35,7 @@ async function runTests() {
     console.log('\n--- TEST 2: Cannot join non-existent room ---');
     let notFoundCaught = false;
     try {
-        rm.joinRoom('ZZZZZZ', user2);
+        await rm.joinRoom('ZZZZZZ', user2);
     } catch (e) {
         notFoundCaught = true;
         assert(e.code === 'ROOM_NOT_FOUND', 'Correct error code ROOM_NOT_FOUND');
@@ -48,14 +48,14 @@ async function runTests() {
         // user1 tries to join user1's room
         // If user1 calls joinRoom on their own waiting room, it's a reconnect or same-user check
         // In our logic: if room is waiting, calling joinRoom with same username is a reconnect:
-        const reconnect = rm.joinRoom(created.code, user1);
+        const reconnect = await rm.joinRoom(created.code, user1);
         assert(reconnect.color === 'white', 'Creator reconnects as White');
     } catch (e) {
         // ok
     }
 
     console.log('\n--- TEST 4: Player 2 joins room ---');
-    const joined = rm.joinRoom(created.code, user2);
+    const joined = await rm.joinRoom(created.code, user2);
     assert(joined.color === 'black', 'Player 2 is assigned Black');
     assert(joined.status === 'playing', 'Room status updated to playing');
 
@@ -63,7 +63,7 @@ async function runTests() {
     const user3 = (await db.registerUser('PlayerThree', 'pass123')).user;
     let fullCaught = false;
     try {
-        rm.joinRoom(created.code, user3);
+        await rm.joinRoom(created.code, user3);
     } catch (e) {
         fullCaught = true;
         assert(e.code === 'ROOM_FULL', 'Correct error code ROOM_FULL');
@@ -100,8 +100,8 @@ async function runTests() {
 
     console.log('\n--- TEST 8: Checkmate flow & profile game recording ---');
     // Create new room for Fool's Mate test
-    const mateRoom = rm.createRoom(user1);
-    rm.joinRoom(mateRoom.code, user2);
+    const mateRoom = await rm.createRoom(user1);
+    await rm.joinRoom(mateRoom.code, user2);
 
     // Fool's mate: 1. f3 e5 2. g4 Qh4#
     await rm.handleMove(mateRoom.code, user1, 'f2', 'f3');
@@ -112,9 +112,9 @@ async function runTests() {
     assert(mateMove.status === 'checkmate', 'Status is checkmate');
     assert(mateMove.winner === 'black', 'Winner is black');
 
-    // Verify room status is finished
-    const roomAfterMate = rm.getRoom(mateRoom.code);
-    assert(roomAfterMate.status === 'finished', 'Room status is finished');
+    // Verify the completed room is removed
+    const roomAfterMate = await rm.getRoom(mateRoom.code);
+    assert(roomAfterMate === null, 'Finished room is removed');
 
     // Verify games are recorded in user profile
     const u1Games = db.getUserGames('playerwhite');

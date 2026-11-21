@@ -17,7 +17,8 @@ class JsonDatabase {
         this.databaseUrl = options.databaseUrl || process.env.DATABASE_URL || null;
         this.data = {
             users: {},
-            sessions: {}
+            sessions: {},
+            rooms: {}
         };
         this.isWriting = false;
         this.writeQueue = [];
@@ -49,6 +50,11 @@ class JsonDatabase {
                 CREATE TABLE IF NOT EXISTS chess_sessions (
                     token TEXT PRIMARY KEY,
                     data JSONB NOT NULL
+                );
+                CREATE TABLE IF NOT EXISTS chess_rooms (
+                    code TEXT PRIMARY KEY,
+                    data JSONB NOT NULL,
+                    updated_at BIGINT NOT NULL
                 );
             `);
 
@@ -132,6 +138,56 @@ class JsonDatabase {
         }
     }
 
+    async loadRoom(code) {
+        if (this.isPostgres && this.pgPool) {
+            const result = await this.pgPool.query('SELECT data FROM chess_rooms WHERE code = $1', [code]);
+            return result.rows[0]?.data || null;
+        }
+        return structuredClone(this.data.rooms?.[code] || null);
+    }
+
+    async saveRoom(room) {
+        const { sseClients, ...data } = room;
+        if (this.isPostgres && this.pgPool) {
+            await this.pgPool.query(
+                `INSERT INTO chess_rooms (code, data, updated_at) VALUES ($1, $2, $3)
+                 ON CONFLICT (code) DO UPDATE SET data = $2, updated_at = $3`,
+                [room.code, JSON.stringify(data), room.updatedAt]
+            );
+            return;
+        }
+        this.data.rooms ||= {};
+        this.data.rooms[room.code] = structuredClone(data);
+        await this.save();
+    }
+
+    async deleteRoom(code) {
+        if (this.isPostgres && this.pgPool) {
+            await this.pgPool.query('DELETE FROM chess_rooms WHERE code = $1', [code]);
+            return;
+        }
+        delete this.data.rooms?.[code];
+        await this.save();
+    }
+
+    async deleteExpiredRooms(cutoff, protectedCodes) {
+        if (this.isPostgres && this.pgPool) {
+            await this.pgPool.query(
+                'DELETE FROM chess_rooms WHERE updated_at < $1 AND NOT (code = ANY($2::text[]))',
+                [cutoff, protectedCodes]
+            );
+            return;
+        }
+        let changed = false;
+        for (const [code, room] of Object.entries(this.data.rooms || {})) {
+            if ((room.updatedAt || room.createdAt) < cutoff && !protectedCodes.includes(code)) {
+                delete this.data.rooms[code];
+                changed = true;
+            }
+        }
+        if (changed) await this.save();
+    }
+
     load() {
         try {
             const dir = path.dirname(this.filePath);
@@ -144,14 +200,15 @@ class JsonDatabase {
                 const parsed = JSON.parse(raw);
                 this.data = {
                     users: parsed.users || {},
-                    sessions: parsed.sessions || {}
+                    sessions: parsed.sessions || {},
+                    rooms: parsed.rooms || {}
                 };
             } else {
                 this.saveSync();
             }
         } catch (err) {
             console.error('[DB] Failed to load JSON database, initializing empty:', err.message);
-            this.data = { users: {}, sessions: {} };
+            this.data = { users: {}, sessions: {}, rooms: {} };
         }
     }
 

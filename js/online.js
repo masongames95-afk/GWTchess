@@ -387,6 +387,10 @@ class OnlineController {
                     ? 'finished'
                     : 'playing';
             }
+            if (this.activeRoom?.status === 'finished' && this.eventSource) {
+                this.eventSource.close();
+                this.eventSource = null;
+            }
 
             // Play appropriate sound
             if (typeof audio !== 'undefined') {
@@ -442,6 +446,11 @@ class OnlineController {
             if (this.activeRoom) {
                 this.activeRoom.status = 'finished';
             }
+            if (this.eventSource) {
+                this.eventSource.close();
+                this.eventSource = null;
+            }
+            this.updateBannerStatus();
 
             const winnerColor = data.winner;
             const isIWinner = (winnerColor === this.activeRoom.color);

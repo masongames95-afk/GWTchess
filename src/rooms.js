@@ -3,38 +3,42 @@ const { createInitialState, makeMove } = require('../js/engine.js');
 const { db } = require('./db.js');
 
 const CODE_CHARS = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // 32 characters, no ambiguous chars (0, O, 1, I, L)
+const ROOM_MAX_IDLE_MS = 4 * 60 * 60 * 1000;
 
 class RoomManager {
     constructor(dbInstance = db) {
         this.db = dbInstance;
         this.rooms = new Map(); // code -> room
         // Cleanup interval for old rooms (every 30 mins)
-        this.cleanupTimer = setInterval(() => this.cleanupOldRooms(), 30 * 60 * 1000);
+        this.cleanupTimer = setInterval(() => {
+            this.cleanupOldRooms().catch(err => console.error('[ROOMS] Cleanup failed:', err));
+        }, 30 * 60 * 1000);
         if (this.cleanupTimer.unref) this.cleanupTimer.unref();
     }
 
-    generateCode() {
+    async generateCode() {
         let code = '';
         const bytes = crypto.randomBytes(6);
         for (let i = 0; i < 6; i++) {
             code += CODE_CHARS[bytes[i] % CODE_CHARS.length];
         }
         // Ensure uniqueness
-        if (this.rooms.has(code)) {
+        if (await this.getRoom(code)) {
             return this.generateCode();
         }
         return code;
     }
 
-    createRoom(user) {
+    async createRoom(user) {
         if (!user || !user.username) {
             throw new Error('Для создания комнаты необходимо войти в аккаунт.');
         }
 
-        const code = this.generateCode();
+        const code = await this.generateCode();
         const room = {
             code,
             createdAt: Date.now(),
+            updatedAt: Date.now(),
             status: 'waiting', // 'waiting' | 'playing' | 'finished'
             creator: user.username,
             white: { username: user.username, connected: true },
@@ -44,6 +48,7 @@ class RoomManager {
             sseClients: new Set()
         };
 
+        await this.db.saveRoom(room);
         this.rooms.set(code, room);
 
         return {
@@ -54,13 +59,13 @@ class RoomManager {
         };
     }
 
-    joinRoom(rawCode, user) {
+    async joinRoom(rawCode, user) {
         if (!user || !user.username) {
             throw new Error('Для присоединения к игре необходимо войти в аккаунт.');
         }
 
         const code = (rawCode || '').trim().toUpperCase();
-        const room = this.rooms.get(code);
+        const room = await this.getRoom(code);
 
         if (!room) {
             const err = new Error(`Комната "${code}" не найдена. Проверьте код и попробуйте снова.`);
@@ -75,6 +80,8 @@ class RoomManager {
         // Case 1: Reconnecting as White
         if (whiteLower === usernameLower) {
             room.white.connected = true;
+            room.updatedAt = Date.now();
+            await this.db.saveRoom(room);
             return {
                 code,
                 color: 'white',
@@ -86,6 +93,8 @@ class RoomManager {
         // Case 2: Reconnecting as Black
         if (blackLower === usernameLower) {
             room.black.connected = true;
+            room.updatedAt = Date.now();
+            await this.db.saveRoom(room);
             return {
                 code,
                 color: 'black',
@@ -112,6 +121,8 @@ class RoomManager {
         if (room.status === 'waiting') {
             room.black = { username: user.username, connected: true };
             room.status = 'playing';
+            room.updatedAt = Date.now();
+            await this.db.saveRoom(room);
 
             // Broadcast match start to all connected clients (creator waiting)
             this.broadcast(room, {
@@ -137,9 +148,21 @@ class RoomManager {
         throw err;
     }
 
-    getRoom(rawCode) {
+    async getRoom(rawCode) {
         const code = (rawCode || '').trim().toUpperCase();
-        return this.rooms.get(code) || null;
+        if (this.rooms.has(code)) return this.rooms.get(code);
+
+        const saved = await this.db.loadRoom(code);
+        if (!saved) return null;
+        if ((saved.updatedAt || saved.createdAt) < Date.now() - ROOM_MAX_IDLE_MS) {
+            await this.db.deleteRoom(code);
+            return null;
+        }
+
+        if (!this.rooms.has(code)) {
+            this.rooms.set(code, { ...saved, sseClients: new Set() });
+        }
+        return this.rooms.get(code);
     }
 
     getPublicRoom(room, currentUser = null) {
@@ -170,7 +193,7 @@ class RoomManager {
 
     async handleMove(rawCode, user, from, to, promotionChoice = 'Q') {
         const code = (rawCode || '').trim().toUpperCase();
-        const room = this.rooms.get(code);
+        const room = await this.getRoom(code);
 
         if (!room) {
             const err = new Error(`Комната "${code}" не найдена.`);
@@ -233,6 +256,10 @@ class RoomManager {
             } catch (saveErr) {
                 console.error('[ROOMS] Failed to save finished game to DB:', saveErr);
             }
+            await this.db.deleteRoom(code);
+        } else {
+            room.updatedAt = Date.now();
+            await this.db.saveRoom(room);
         }
 
         // Broadcast move to all SSE clients in the room
@@ -247,6 +274,7 @@ class RoomManager {
             gameState: room.gameState,
             result: room.result
         });
+        if (room.status === 'finished') this.closeRoom(room);
 
         return {
             success: true,
@@ -260,7 +288,7 @@ class RoomManager {
 
     async handleResign(rawCode, user) {
         const code = (rawCode || '').trim().toUpperCase();
-        const room = this.rooms.get(code);
+        const room = await this.getRoom(code);
 
         if (!room) {
             const err = new Error(`Комната "${code}" не найдена.`);
@@ -314,6 +342,7 @@ class RoomManager {
         } catch (saveErr) {
             console.error('[ROOMS] Failed to save resigned game to DB:', saveErr);
         }
+        await this.db.deleteRoom(code);
 
         this.broadcast(room, {
             type: 'game_over',
@@ -323,6 +352,7 @@ class RoomManager {
             gameState: room.gameState,
             result: room.result
         });
+        this.closeRoom(room);
 
         return {
             success: true,
@@ -330,9 +360,9 @@ class RoomManager {
         };
     }
 
-    addSSEClient(rawCode, res, user) {
+    async addSSEClient(rawCode, res, user) {
         const code = (rawCode || '').trim().toUpperCase();
-        const room = this.rooms.get(code);
+        const room = await this.getRoom(code);
 
         if (!room) {
             res.writeHead(404, { 'Content-Type': 'text/plain; charset=utf-8' });
@@ -389,14 +419,22 @@ class RoomManager {
         }
     }
 
-    cleanupOldRooms() {
-        const maxAge = 4 * 60 * 60 * 1000; // 4 hours
-        const now = Date.now();
+    closeRoom(room) {
+        this.rooms.delete(room.code);
+        for (const client of room.sseClients) client.end();
+    }
+
+    async cleanupOldRooms() {
+        const cutoff = Date.now() - ROOM_MAX_IDLE_MS;
+        const protectedCodes = [];
         for (const [code, room] of this.rooms.entries()) {
-            if (now - room.createdAt > maxAge && room.sseClients.size === 0) {
+            if (room.sseClients.size > 0) {
+                protectedCodes.push(code);
+            } else if ((room.updatedAt || room.createdAt) < cutoff) {
                 this.rooms.delete(code);
             }
         }
+        await this.db.deleteExpiredRooms(cutoff, protectedCodes);
     }
 }
 
