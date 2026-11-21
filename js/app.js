@@ -121,6 +121,9 @@ let selectedSquare = null;
 let legalMoves = [];
 let isFlipped = false;
 let pendingPromotion = null; // { from, to, color }
+let botWorker = null;
+let botThinking = false;
+let botError = false;
 
 // DOM Elements
 const boardEl = document.getElementById('chessboard');
@@ -156,6 +159,87 @@ const gameOverDescEl = document.getElementById('game-over-desc');
 const gameOverIconEl = document.getElementById('game-over-icon');
 const btnModalRestart = document.getElementById('btn-modal-restart');
 const btnModalClose = document.getElementById('btn-modal-close');
+const gameModeEl = document.getElementById('game-mode');
+const botHumanColorEl = document.getElementById('bot-human-color');
+const botColorFieldEl = document.getElementById('bot-color-field');
+const botStatusEl = document.getElementById('bot-status');
+const btnBotRetry = document.getElementById('btn-bot-retry');
+
+function isBotGame() {
+    return !!gameState?.bot && !window.onlineController?.isOnlineMatch;
+}
+
+function botSettings(state) {
+    return ['white', 'black'].includes(state.bot?.humanColor)
+        ? { humanColor: state.bot.humanColor } : null;
+}
+
+function cancelBotMove() {
+    if (botWorker) botWorker.terminate();
+    botWorker = null;
+    botThinking = false;
+    botError = false;
+}
+
+function syncGameSettings() {
+    gameModeEl.value = isBotGame() ? 'bot' : 'local';
+    botHumanColorEl.value = isBotGame() ? gameState.bot.humanColor : 'white';
+    botColorFieldEl.classList.toggle('hidden', gameModeEl.value !== 'bot');
+}
+
+function renderBotStatus() {
+    const online = !!window.onlineController?.isOnlineMatch;
+    gameModeEl.disabled = online;
+    botHumanColorEl.disabled = online;
+    botStatusEl.classList.toggle('hidden', !isBotGame());
+    btnBotRetry.classList.toggle('hidden', !isBotGame() || !botError);
+    boardEl.setAttribute('aria-busy', String(botThinking));
+    if (!isBotGame()) return;
+    const side = gameState.bot.humanColor === 'white' ? 'белых' : 'чёрных';
+    const finished = gameState.status === 'checkmate' || gameState.status === 'stalemate';
+    const status = finished ? 'партия завершена' : botError ? 'бот недоступен, повторите ход' :
+        botThinking ? 'бот думает…' : 'ваш ход';
+    botStatusEl.textContent = `С ботом · вы за ${side} · ${status}`;
+}
+
+function requestBotMove() {
+    if (!isBotGame() || botThinking || gameState.turn === gameState.bot.humanColor ||
+        gameState.status === 'checkmate' || gameState.status === 'stalemate') return;
+
+    const position = gameState;
+    const moveCount = position.moveCount;
+    const fail = () => {
+        cancelBotMove();
+        botError = true;
+        renderBotStatus();
+        showMessage('Не удалось рассчитать ход бота. Нажмите «Повторить ход бота» или начните партию вдвоём.', true);
+    };
+
+    try {
+        if (!botWorker) botWorker = new Worker(new URL('js/bot-worker.js?v=1', document.baseURI));
+        const worker = botWorker;
+        botThinking = true;
+        botError = false;
+        renderBotStatus();
+        worker.onmessage = ({ data }) => {
+            if (worker !== botWorker || gameState !== position || gameState.moveCount !== moveCount || !isBotGame()) return;
+            botThinking = false;
+            if (data.error || !data.move) {
+                fail();
+                return;
+            }
+            const { from, to, promotionChoice } = data.move;
+            finalizeMove(from, to, promotionChoice, true);
+        };
+        worker.onerror = event => {
+            event.preventDefault();
+            if (worker === botWorker) fail();
+        };
+        worker.postMessage(position);
+    } catch (error) {
+        fail();
+    }
+}
 
 /**
  * Message Display
@@ -183,6 +267,7 @@ function loadState() {
             const parsed = JSON.parse(saved);
             if (parsed && Array.isArray(parsed.board) && parsed.board.length === 8) {
                 // Restore castling rights and state fields
+                parsed.bot = botSettings(parsed);
                 return parsed;
             }
         }
@@ -208,15 +293,21 @@ function exportToJson() {
 
 function importFromJson(file) {
     if (!file) return;
+    if (window.onlineController?.isOnlineMatch) {
+        showMessage('Завершите онлайн-партию перед загрузкой JSON.', true);
+        return;
+    }
 
     const reader = new FileReader();
     reader.onload = function (e) {
+        if (window.onlineController?.isOnlineMatch) return;
         try {
             const imported = JSON.parse(e.target.result);
             if (!imported || !Array.isArray(imported.board) || imported.board.length !== 8) {
                 throw new Error('Некорректная шахматная доска в JSON файле.');
             }
 
+            cancelBotMove();
             gameState = {
                 id: imported.id || 'imported_' + Date.now(),
                 turn: imported.turn === 'black' ? 'black' : 'white',
@@ -231,7 +322,8 @@ function importFromJson(file) {
                 },
                 enPassantTarget: imported.enPassantTarget || null,
                 halfMoveClock: imported.halfMoveClock || 0,
-                board: imported.board
+                board: imported.board,
+                bot: botSettings(imported)
             };
 
             // Verify status with engine
@@ -242,10 +334,13 @@ function importFromJson(file) {
             pendingPromotion = null;
             promotionOverlay.classList.add('hidden');
             gameOverOverlay.classList.add('hidden');
+            syncGameSettings();
+            if (isBotGame()) isFlipped = gameState.bot.humanColor === 'black';
 
             saveState();
             render();
             showMessage(`Партия "${file.name}" успешно загружена!`);
+            requestBotMove();
         } catch (err) {
             showMessage('Ошибка загрузки JSON: ' + err.message, true);
         }
@@ -256,7 +351,7 @@ function importFromJson(file) {
 /**
  * Execution of move (direct or after promotion selection)
  */
-function finalizeMove(from, to, promotionChoice = 'Q') {
+function finalizeMove(from, to, promotionChoice = 'Q', fromBot = false) {
     // If this is an active online match, forward move to server
     if (window.onlineController && window.onlineController.isOnlineMatch) {
         selectedSquare = null;
@@ -266,6 +361,7 @@ function finalizeMove(from, to, promotionChoice = 'Q') {
         window.onlineController.sendMoveToServer(from, to, promotionChoice);
         return;
     }
+    if (isBotGame() && gameState.turn !== gameState.bot.humanColor && !fromBot) return;
 
     const res = makeMove(gameState, from, to, promotionChoice);
 
@@ -273,6 +369,7 @@ function finalizeMove(from, to, promotionChoice = 'Q') {
         showMessage(res.error || 'Недопустимый ход.', true);
         return;
     }
+    if (isBotGame() && (res.status === 'checkmate' || res.status === 'stalemate')) cancelBotMove();
 
     selectedSquare = null;
     legalMoves = [];
@@ -295,16 +392,18 @@ function finalizeMove(from, to, promotionChoice = 'Q') {
 
     // Feedback message
     if (res.status === 'checkmate') {
-        const winnerName = res.winner === 'white' ? 'Белые' : 'Черные';
-        showMessage(`МАТ! ${winnerName} победили!`, false);
-        openGameOverModal(`Мат! Победили ${winnerName}`, `Партия завершена за ${Math.ceil(gameState.moveCount / 2)} ходов.`);
-        if (window.authController) {
+        const resultTitle = isBotGame()
+            ? (res.winner === gameState.bot.humanColor ? 'Мат! Вы победили!' : 'Мат! Бот победил!')
+            : `Мат! Победили ${res.winner === 'white' ? 'Белые' : 'Черные'}`;
+        showMessage(resultTitle, false);
+        openGameOverModal(resultTitle, `Партия завершена за ${Math.ceil(gameState.moveCount / 2)} ходов.`);
+        if (window.authController && !isBotGame()) {
             window.authController.recordGameOutcome(res.winner === 'white' ? 'win' : 'loss', 'checkmate', gameState.moveCount);
         }
     } else if (res.status === 'stalemate') {
         showMessage('ПАТ! Ничья.', false);
         openGameOverModal('Пат! Ничья', 'У игрока нет доступных ходов, но король не находится под шахом.');
-        if (window.authController) {
+        if (window.authController && !isBotGame()) {
             window.authController.recordGameOutcome('draw', 'stalemate', gameState.moveCount);
         }
     } else if (res.status === 'check') {
@@ -312,6 +411,7 @@ function finalizeMove(from, to, promotionChoice = 'Q') {
     } else {
         showMessage(`Ход ${res.san}`);
     }
+    requestBotMove();
 }
 
 /**
@@ -368,6 +468,7 @@ function handleSquareClick(r, c) {
     }
 
     if (pendingPromotion) return; // Wait for promotion dialog
+    if (isBotGame() && gameState.turn !== gameState.bot.humanColor) return;
 
     // Online game validation
     if (window.onlineController && window.onlineController.isOnlineMatch) {
@@ -458,7 +559,12 @@ function resetGame() {
     if (gameState.history.length > 0) {
         if (!confirm('Начать новую партию? Текущий прогресс будет сброшен.')) return;
     }
+    cancelBotMove();
     gameState = createInitialState();
+    if (gameModeEl.value === 'bot') {
+        gameState.bot = { humanColor: botHumanColorEl.value };
+        isFlipped = gameState.bot.humanColor === 'black';
+    }
     selectedSquare = null;
     legalMoves = [];
     pendingPromotion = null;
@@ -467,6 +573,7 @@ function resetGame() {
     saveState();
     render();
     showMessage('Начата новая партия. Ход белых.');
+    requestBotMove();
 }
 
 /**
@@ -495,6 +602,11 @@ function render() {
 
     nameTopEl.textContent = topColor === 'white' ? 'Белые' : 'Черные';
     nameBottomEl.textContent = bottomColor === 'white' ? 'Белые' : 'Черные';
+    if (isBotGame()) {
+        const playerName = color => `${color === gameState.bot.humanColor ? 'Вы' : 'Бот'} (${color === 'white' ? 'белые' : 'чёрные'})`;
+        nameTopEl.textContent = playerName(topColor);
+        nameBottomEl.textContent = playerName(bottomColor);
+    }
     avatarTopEl.textContent = topColor === 'white' ? '♔' : '♚';
     avatarBottomEl.textContent = bottomColor === 'white' ? '♚' : '♔';
 
@@ -597,6 +709,7 @@ function render() {
 
     // 5. Move History Table
     renderHistoryTable();
+    renderBotStatus();
 }
 
 /**
@@ -696,6 +809,12 @@ function renderHistoryTable() {
  * Event Listeners & Bindings
  */
 btnReset.addEventListener('click', resetGame);
+gameModeEl.addEventListener('change', () => {
+    botColorFieldEl.classList.toggle('hidden', gameModeEl.value !== 'bot');
+});
+btnBotRetry.addEventListener('click', requestBotMove);
+window.addEventListener('pagehide', cancelBotMove);
+window.addEventListener('pageshow', requestBotMove);
 
 btnFlip.addEventListener('click', () => {
     isFlipped = !isFlipped;
@@ -730,6 +849,8 @@ btnModalClose.addEventListener('click', () => {
 // Initialize on Load
 gameState = loadState();
 updateGameStatus(gameState);
+syncGameSettings();
+if (isBotGame()) isFlipped = gameState.bot.humanColor === 'black';
 render();
 
 if (gameState.status === 'checkmate') {
@@ -739,3 +860,4 @@ if (gameState.status === 'checkmate') {
 } else {
     showMessage('Шахматная партия готова! Выберите фигуру своего цвета для хода.');
 }
+requestBotMove();

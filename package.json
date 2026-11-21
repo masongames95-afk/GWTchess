@@ -5,7 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "test": "node test/db_test.js && node test/server_test.js && node test/rooms_test.js && node test/rooms_persistence_test.js && node test/online_api_test.js && node test/leaderboard_test.js && node test/chess_test.js && node test/more_tests.js"
+    "test": "node test/db_test.js && node test/server_test.js && node test/rooms_test.js && node test/rooms_persistence_test.js && node test/online_api_test.js && node test/leaderboard_test.js && node test/chess_test.js && node test/more_tests.js && node test/bot_test.js"
   },
   "engines": {
     "node": ">=20.0.0"

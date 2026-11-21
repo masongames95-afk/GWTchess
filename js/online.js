@@ -478,6 +478,12 @@ class OnlineController {
     }
 
     startOnlineMatch(roomData) {
+        if (typeof cancelBotMove === 'function') cancelBotMove();
+        selectedSquare = null;
+        legalMoves = [];
+        pendingPromotion = null;
+        promotionOverlay.classList.add('hidden');
+        gameOverOverlay.classList.add('hidden');
         this.isOnlineMatch = true;
         this.activeRoom = roomData;
 
@@ -516,6 +522,7 @@ class OnlineController {
         this.updateBannerStatus();
 
         if (typeof render === 'function') {
+            syncGameSettings();
             render();
         }
     }
@@ -652,6 +659,8 @@ class OnlineController {
                 showMessage('Вы вышли из онлайн-комнаты. Включен локальный режим.');
             }
         }
+        syncGameSettings();
+        render();
     }
 }
 

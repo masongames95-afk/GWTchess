@@ -781,6 +781,50 @@ body {
 }
 
 /* Buttons */
+.game-settings {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.game-settings label {
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.82rem;
+    color: var(--text-secondary);
+}
+
+.game-settings select {
+    width: 100%;
+    min-height: 44px;
+    padding: 8px 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    color-scheme: dark;
+    font: inherit;
+    font-size: 0.85rem;
+}
+
+.game-settings select:focus-visible,
+#btn-reset:focus-visible,
+#btn-bot-retry:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 3px;
+}
+
+.game-settings select:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.bot-status {
+    color: var(--accent-ice);
+    font-size: 0.82rem;
+    margin-bottom: 10px;
+}
+
 .buttons-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
