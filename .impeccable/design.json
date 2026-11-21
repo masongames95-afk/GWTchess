@@ -1,0 +1,716 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-21T12:24:54.251268Z",
+  "title": "Design System: Королевские шахматы",
+  "extensions": {
+    "colorMeta": {
+      "accent-cyan": {
+        "role": "primary",
+        "displayName": "Accent cyan",
+        "tonalRamp": [
+          "oklch(15% 0.0463 232.66)",
+          "oklch(25% 0.0772 232.66)",
+          "oklch(35% 0.1081 232.66)",
+          "oklch(45% 0.1390 232.66)",
+          "oklch(55% 0.1390 232.66)",
+          "oklch(65% 0.1390 232.66)",
+          "oklch(80% 0.0927 232.66)",
+          "oklch(95% 0.0232 232.66)"
+        ]
+      },
+      "accent-ice": {
+        "role": "primary",
+        "displayName": "Accent ice",
+        "tonalRamp": [
+          "oklch(15% 0.0083 236.82)",
+          "oklch(25% 0.0139 236.82)",
+          "oklch(35% 0.0195 236.82)",
+          "oklch(45% 0.0250 236.82)",
+          "oklch(55% 0.0250 236.82)",
+          "oklch(65% 0.0250 236.82)",
+          "oklch(80% 0.0167 236.82)",
+          "oklch(95% 0.0042 236.82)"
+        ]
+      },
+      "accent-violet": {
+        "role": "secondary",
+        "displayName": "Accent violet",
+        "tonalRamp": [
+          "oklch(15% 0.0354 276.03)",
+          "oklch(25% 0.0591 276.03)",
+          "oklch(35% 0.0827 276.03)",
+          "oklch(45% 0.1063 276.03)",
+          "oklch(55% 0.1063 276.03)",
+          "oklch(65% 0.1063 276.03)",
+          "oklch(80% 0.0709 276.03)",
+          "oklch(95% 0.0177 276.03)"
+        ]
+      },
+      "accent-mint": {
+        "role": "secondary",
+        "displayName": "Accent mint",
+        "tonalRamp": [
+          "oklch(15% 0.0442 181.91)",
+          "oklch(25% 0.0736 181.91)",
+          "oklch(35% 0.1031 181.91)",
+          "oklch(45% 0.1325 181.91)",
+          "oklch(55% 0.1325 181.91)",
+          "oklch(65% 0.1325 181.91)",
+          "oklch(80% 0.0884 181.91)",
+          "oklch(95% 0.0221 181.91)"
+        ]
+      },
+      "accent-rose": {
+        "role": "secondary",
+        "displayName": "Accent rose",
+        "tonalRamp": [
+          "oklch(15% 0.0718 16.44)",
+          "oklch(25% 0.1197 16.44)",
+          "oklch(35% 0.1675 16.44)",
+          "oklch(45% 0.2154 16.44)",
+          "oklch(55% 0.2154 16.44)",
+          "oklch(65% 0.2154 16.44)",
+          "oklch(80% 0.1436 16.44)",
+          "oklch(95% 0.0359 16.44)"
+        ]
+      },
+      "bg-body": {
+        "role": "neutral",
+        "displayName": "Bg body",
+        "tonalRamp": [
+          "oklch(15% 0.0083 262.09)",
+          "oklch(25% 0.0139 262.09)",
+          "oklch(35% 0.0194 262.09)",
+          "oklch(45% 0.0249 262.09)",
+          "oklch(55% 0.0249 262.09)",
+          "oklch(65% 0.0249 262.09)",
+          "oklch(80% 0.0166 262.09)",
+          "oklch(95% 0.0042 262.09)"
+        ]
+      },
+      "bg-surface": {
+        "role": "neutral",
+        "displayName": "Bg surface",
+        "tonalRamp": [
+          "oklch(15% 0.0116 259.51)",
+          "oklch(25% 0.0194 259.51)",
+          "oklch(35% 0.0272 259.51)",
+          "oklch(45% 0.0349 259.51)",
+          "oklch(55% 0.0349 259.51)",
+          "oklch(65% 0.0349 259.51)",
+          "oklch(80% 0.0233 259.51)",
+          "oklch(95% 0.0058 259.51)"
+        ]
+      },
+      "bg-surface-elevated": {
+        "role": "neutral",
+        "displayName": "Bg surface elevated",
+        "tonalRamp": [
+          "oklch(15% 0.0142 258.75)",
+          "oklch(25% 0.0236 258.75)",
+          "oklch(35% 0.0331 258.75)",
+          "oklch(45% 0.0425 258.75)",
+          "oklch(55% 0.0425 258.75)",
+          "oklch(65% 0.0425 258.75)",
+          "oklch(80% 0.0283 258.75)",
+          "oklch(95% 0.0071 258.75)"
+        ]
+      },
+      "bg-surface-hover": {
+        "role": "neutral",
+        "displayName": "Bg surface hover",
+        "tonalRamp": [
+          "oklch(15% 0.0166 257.11)",
+          "oklch(25% 0.0277 257.11)",
+          "oklch(35% 0.0388 257.11)",
+          "oklch(45% 0.0498 257.11)",
+          "oklch(55% 0.0498 257.11)",
+          "oklch(65% 0.0498 257.11)",
+          "oklch(80% 0.0332 257.11)",
+          "oklch(95% 0.0083 257.11)"
+        ]
+      },
+      "border-color": {
+        "role": "neutral",
+        "displayName": "Border color",
+        "tonalRamp": [
+          "oklch(15% 0.0162 249.47 / 0.16)",
+          "oklch(25% 0.0270 249.47 / 0.16)",
+          "oklch(35% 0.0378 249.47 / 0.16)",
+          "oklch(45% 0.0486 249.47 / 0.16)",
+          "oklch(55% 0.0486 249.47 / 0.16)",
+          "oklch(65% 0.0486 249.47 / 0.16)",
+          "oklch(80% 0.0324 249.47 / 0.16)",
+          "oklch(95% 0.0081 249.47 / 0.16)"
+        ]
+      },
+      "text-primary": {
+        "role": "neutral",
+        "displayName": "Text primary",
+        "tonalRamp": [
+          "oklch(15% 0.0049 251.16)",
+          "oklch(25% 0.0082 251.16)",
+          "oklch(35% 0.0115 251.16)",
+          "oklch(45% 0.0148 251.16)",
+          "oklch(55% 0.0148 251.16)",
+          "oklch(65% 0.0148 251.16)",
+          "oklch(80% 0.0099 251.16)",
+          "oklch(95% 0.0025 251.16)"
+        ]
+      },
+      "text-secondary": {
+        "role": "neutral",
+        "displayName": "Text secondary",
+        "tonalRamp": [
+          "oklch(15% 0.0123 254.91)",
+          "oklch(25% 0.0205 254.91)",
+          "oklch(35% 0.0287 254.91)",
+          "oklch(45% 0.0369 254.91)",
+          "oklch(55% 0.0369 254.91)",
+          "oklch(65% 0.0369 254.91)",
+          "oklch(80% 0.0246 254.91)",
+          "oklch(95% 0.0062 254.91)"
+        ]
+      },
+      "text-muted": {
+        "role": "neutral",
+        "displayName": "Text muted",
+        "tonalRamp": [
+          "oklch(15% 0.0149 255.07)",
+          "oklch(25% 0.0249 255.07)",
+          "oklch(35% 0.0348 255.07)",
+          "oklch(45% 0.0447 255.07)",
+          "oklch(55% 0.0447 255.07)",
+          "oklch(65% 0.0447 255.07)",
+          "oklch(80% 0.0298 255.07)",
+          "oklch(95% 0.0075 255.07)"
+        ]
+      },
+      "board-frame-bg": {
+        "role": "neutral",
+        "displayName": "Board frame bg",
+        "tonalRamp": [
+          "oklch(15% 0.0126 255.54)",
+          "oklch(25% 0.0210 255.54)",
+          "oklch(35% 0.0294 255.54)",
+          "oklch(45% 0.0379 255.54)",
+          "oklch(55% 0.0379 255.54)",
+          "oklch(65% 0.0379 255.54)",
+          "oklch(80% 0.0252 255.54)",
+          "oklch(95% 0.0063 255.54)"
+        ]
+      },
+      "square-light": {
+        "role": "neutral",
+        "displayName": "Square light",
+        "tonalRamp": [
+          "oklch(15% 0.0045 240.96)",
+          "oklch(25% 0.0076 240.96)",
+          "oklch(35% 0.0106 240.96)",
+          "oklch(45% 0.0136 240.96)",
+          "oklch(55% 0.0136 240.96)",
+          "oklch(65% 0.0136 240.96)",
+          "oklch(80% 0.0091 240.96)",
+          "oklch(95% 0.0023 240.96)"
+        ]
+      },
+      "square-dark": {
+        "role": "neutral",
+        "displayName": "Square dark",
+        "tonalRamp": [
+          "oklch(15% 0.0177 241.43)",
+          "oklch(25% 0.0295 241.43)",
+          "oklch(35% 0.0413 241.43)",
+          "oklch(45% 0.0531 241.43)",
+          "oklch(55% 0.0531 241.43)",
+          "oklch(65% 0.0531 241.43)",
+          "oklch(80% 0.0354 241.43)",
+          "oklch(95% 0.0089 241.43)"
+        ]
+      },
+      "square-selected": {
+        "role": "neutral",
+        "displayName": "Square selected",
+        "tonalRamp": [
+          "oklch(15% 0.0217 216.65)",
+          "oklch(25% 0.0362 216.65)",
+          "oklch(35% 0.0507 216.65)",
+          "oklch(45% 0.0652 216.65)",
+          "oklch(55% 0.0652 216.65)",
+          "oklch(65% 0.0652 216.65)",
+          "oklch(80% 0.0434 216.65)",
+          "oklch(95% 0.0109 216.65)"
+        ]
+      },
+      "square-last-move": {
+        "role": "neutral",
+        "displayName": "Square last move",
+        "tonalRamp": [
+          "oklch(15% 0.0174 224.93)",
+          "oklch(25% 0.0290 224.93)",
+          "oklch(35% 0.0406 224.93)",
+          "oklch(45% 0.0522 224.93)",
+          "oklch(55% 0.0522 224.93)",
+          "oklch(65% 0.0522 224.93)",
+          "oklch(80% 0.0348 224.93)",
+          "oklch(95% 0.0087 224.93)"
+        ]
+      },
+      "button-primary": {
+        "role": "primary",
+        "displayName": "Button primary",
+        "tonalRamp": [
+          "oklch(15% 0.0205 236.17)",
+          "oklch(25% 0.0341 236.17)",
+          "oklch(35% 0.0477 236.17)",
+          "oklch(45% 0.0614 236.17)",
+          "oklch(55% 0.0614 236.17)",
+          "oklch(65% 0.0614 236.17)",
+          "oklch(80% 0.0409 236.17)",
+          "oklch(95% 0.0102 236.17)"
+        ]
+      },
+      "button-primary-hover": {
+        "role": "primary",
+        "displayName": "Button primary hover",
+        "tonalRamp": [
+          "oklch(15% 0.0233 234.11)",
+          "oklch(25% 0.0388 234.11)",
+          "oklch(35% 0.0544 234.11)",
+          "oklch(45% 0.0699 234.11)",
+          "oklch(55% 0.0699 234.11)",
+          "oklch(65% 0.0699 234.11)",
+          "oklch(80% 0.0466 234.11)",
+          "oklch(95% 0.0116 234.11)"
+        ]
+      },
+      "button-danger": {
+        "role": "secondary",
+        "displayName": "Button danger",
+        "tonalRamp": [
+          "oklch(15% 0.0178 348.66)",
+          "oklch(25% 0.0296 348.66)",
+          "oklch(35% 0.0414 348.66)",
+          "oklch(45% 0.0533 348.66)",
+          "oklch(55% 0.0533 348.66)",
+          "oklch(65% 0.0533 348.66)",
+          "oklch(80% 0.0355 348.66)",
+          "oklch(95% 0.0089 348.66)"
+        ]
+      },
+      "button-danger-hover": {
+        "role": "secondary",
+        "displayName": "Button danger hover",
+        "tonalRamp": [
+          "oklch(15% 0.0257 354.95)",
+          "oklch(25% 0.0428 354.95)",
+          "oklch(35% 0.0600 354.95)",
+          "oklch(45% 0.0771 354.95)",
+          "oklch(55% 0.0771 354.95)",
+          "oklch(65% 0.0771 354.95)",
+          "oklch(80% 0.0514 354.95)",
+          "oklch(95% 0.0128 354.95)"
+        ]
+      },
+      "text-danger": {
+        "role": "secondary",
+        "displayName": "Text danger",
+        "tonalRamp": [
+          "oklch(15% 0.0381 8.33)",
+          "oklch(25% 0.0635 8.33)",
+          "oklch(35% 0.0889 8.33)",
+          "oklch(45% 0.1143 8.33)",
+          "oklch(55% 0.1143 8.33)",
+          "oklch(65% 0.1143 8.33)",
+          "oklch(80% 0.0762 8.33)",
+          "oklch(95% 0.0190 8.33)"
+        ]
+      },
+      "text-error": {
+        "role": "secondary",
+        "displayName": "Text error",
+        "tonalRamp": [
+          "oklch(15% 0.0563 13.43)",
+          "oklch(25% 0.0939 13.43)",
+          "oklch(35% 0.1314 13.43)",
+          "oklch(45% 0.1690 13.43)",
+          "oklch(55% 0.1690 13.43)",
+          "oklch(65% 0.1690 13.43)",
+          "oklch(80% 0.1127 13.43)",
+          "oklch(95% 0.0282 13.43)"
+        ]
+      },
+      "action-online": {
+        "role": "primary",
+        "displayName": "Action online",
+        "tonalRamp": [
+          "oklch(15% 0.0189 239.04)",
+          "oklch(25% 0.0315 239.04)",
+          "oklch(35% 0.0441 239.04)",
+          "oklch(45% 0.0567 239.04)",
+          "oklch(55% 0.0567 239.04)",
+          "oklch(65% 0.0567 239.04)",
+          "oklch(80% 0.0378 239.04)",
+          "oklch(95% 0.0094 239.04)"
+        ]
+      },
+      "action-online-hover": {
+        "role": "primary",
+        "displayName": "Action online hover",
+        "tonalRamp": [
+          "oklch(15% 0.0219 235.78)",
+          "oklch(25% 0.0365 235.78)",
+          "oklch(35% 0.0512 235.78)",
+          "oklch(45% 0.0658 235.78)",
+          "oklch(55% 0.0658 235.78)",
+          "oklch(65% 0.0658 235.78)",
+          "oklch(80% 0.0439 235.78)",
+          "oklch(95% 0.0110 235.78)"
+        ]
+      },
+      "action-records": {
+        "role": "secondary",
+        "displayName": "Action records",
+        "tonalRamp": [
+          "oklch(15% 0.0209 269.25)",
+          "oklch(25% 0.0349 269.25)",
+          "oklch(35% 0.0488 269.25)",
+          "oklch(45% 0.0628 269.25)",
+          "oklch(55% 0.0628 269.25)",
+          "oklch(65% 0.0628 269.25)",
+          "oklch(80% 0.0418 269.25)",
+          "oklch(95% 0.0105 269.25)"
+        ]
+      },
+      "action-records-hover": {
+        "role": "secondary",
+        "displayName": "Action records hover",
+        "tonalRamp": [
+          "oklch(15% 0.0244 268.52)",
+          "oklch(25% 0.0407 268.52)",
+          "oklch(35% 0.0570 268.52)",
+          "oklch(45% 0.0733 268.52)",
+          "oklch(55% 0.0733 268.52)",
+          "oklch(65% 0.0733 268.52)",
+          "oklch(80% 0.0489 268.52)",
+          "oklch(95% 0.0122 268.52)"
+        ]
+      },
+      "field-bg": {
+        "role": "neutral",
+        "displayName": "Field bg",
+        "tonalRamp": [
+          "oklch(15% 0.0104 261.14)",
+          "oklch(25% 0.0173 261.14)",
+          "oklch(35% 0.0242 261.14)",
+          "oklch(45% 0.0311 261.14)",
+          "oklch(55% 0.0311 261.14)",
+          "oklch(65% 0.0311 261.14)",
+          "oklch(80% 0.0207 261.14)",
+          "oklch(95% 0.0052 261.14)"
+        ]
+      },
+      "mode-bg": {
+        "role": "neutral",
+        "displayName": "Mode bg",
+        "tonalRamp": [
+          "oklch(15% 0.0125 257.16)",
+          "oklch(25% 0.0208 257.16)",
+          "oklch(35% 0.0291 257.16)",
+          "oklch(45% 0.0374 257.16)",
+          "oklch(55% 0.0374 257.16)",
+          "oklch(65% 0.0374 257.16)",
+          "oklch(80% 0.0249 257.16)",
+          "oklch(95% 0.0062 257.16)"
+        ]
+      },
+      "mode-selected-bg": {
+        "role": "neutral",
+        "displayName": "Mode selected bg",
+        "tonalRamp": [
+          "oklch(15% 0.0166 242.11)",
+          "oklch(25% 0.0277 242.11)",
+          "oklch(35% 0.0387 242.11)",
+          "oklch(45% 0.0498 242.11)",
+          "oklch(55% 0.0498 242.11)",
+          "oklch(65% 0.0498 242.11)",
+          "oklch(80% 0.0332 242.11)",
+          "oklch(95% 0.0083 242.11)"
+        ]
+      },
+      "mode-selected-border": {
+        "role": "neutral",
+        "displayName": "Mode selected border",
+        "tonalRamp": [
+          "oklch(15% 0.0260 232.45)",
+          "oklch(25% 0.0433 232.45)",
+          "oklch(35% 0.0606 232.45)",
+          "oklch(45% 0.0779 232.45)",
+          "oklch(55% 0.0779 232.45)",
+          "oklch(65% 0.0779 232.45)",
+          "oklch(80% 0.0519 232.45)",
+          "oklch(95% 0.0130 232.45)"
+        ]
+      },
+      "tile-light": {
+        "role": "neutral",
+        "displayName": "Tile light",
+        "tonalRamp": [
+          "oklch(15% 0.0199 234.50)",
+          "oklch(25% 0.0332 234.50)",
+          "oklch(35% 0.0465 234.50)",
+          "oklch(45% 0.0598 234.50)",
+          "oklch(55% 0.0598 234.50)",
+          "oklch(65% 0.0598 234.50)",
+          "oklch(80% 0.0399 234.50)",
+          "oklch(95% 0.0100 234.50)"
+        ]
+      },
+      "tile-dark": {
+        "role": "neutral",
+        "displayName": "Tile dark",
+        "tonalRamp": [
+          "oklch(15% 0.0157 243.79)",
+          "oklch(25% 0.0262 243.79)",
+          "oklch(35% 0.0366 243.79)",
+          "oklch(45% 0.0471 243.79)",
+          "oklch(55% 0.0471 243.79)",
+          "oklch(65% 0.0471 243.79)",
+          "oklch(80% 0.0314 243.79)",
+          "oklch(95% 0.0079 243.79)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Game-result heading."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Brand title, reduced at phone widths."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Interface family and base line height; no explicit body size or weight."
+      },
+      "section-title": {
+        "displayName": "Section title",
+        "purpose": "Card headings."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Visible field labels."
+      },
+      "command-title": {
+        "displayName": "Command title",
+        "purpose": "Major action labels."
+      },
+      "command-description": {
+        "displayName": "Command description",
+        "purpose": "Short action explanations."
+      },
+      "notation": {
+        "displayName": "Notation",
+        "purpose": "SAN move history."
+      },
+      "coordinates": {
+        "displayName": "Coordinates",
+        "purpose": "In-square board coordinates."
+      }
+    },
+    "shadows": [
+      {
+        "name": "input-focus",
+        "value": "0 0 0 3px rgba(56, 189, 248, 0.22)",
+        "purpose": "Field focus ring."
+      },
+      {
+        "name": "square-selected",
+        "value": "inset 0 0 0 2px var(--accent-cyan)",
+        "purpose": "Selected chess square."
+      },
+      {
+        "name": "promotion-hover",
+        "value": "0 4px 14px rgba(56, 189, 248, 0.25)",
+        "purpose": "Promotion choice hover."
+      },
+      {
+        "name": "piece-image",
+        "value": "drop-shadow(0 3px 5px rgba(0, 0, 0, 0.45))",
+        "purpose": "Existing chess PNG depth; this is a filter."
+      }
+    ],
+    "motion": [
+      {
+        "name": "command-state",
+        "value": "0.16s ease",
+        "purpose": "Command/radio border and color transitions; chevrons translateX(2px)."
+      },
+      {
+        "name": "player-state",
+        "value": "0.18s ease",
+        "purpose": "Player strip border/background."
+      },
+      {
+        "name": "field-tab-state",
+        "value": "0.2s",
+        "purpose": "Field ring/border and tab state; tabs use ease."
+      },
+      {
+        "name": "dialog-entry",
+        "value": "fadeIn 0.2s ease-out",
+        "purpose": "Opacity 0 to 1; scale 0.96 to 1."
+      },
+      {
+        "name": "refresh-loading",
+        "value": "spinRefresh 0.8s linear infinite",
+        "purpose": "Records refresh loading only."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "@media (prefers-reduced-motion: reduce)",
+        "purpose": "animation:none!important; transition:none!important; scroll-behavior:auto!important."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mode-tile-reflow",
+        "value": "1100px"
+      },
+      {
+        "name": "stack-board-sidebar",
+        "value": "960px"
+      },
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "compact-phone",
+        "value": "380px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Online action",
+      "kind": "button",
+      "refersTo": "command-online",
+      "description": "Создать комнату или войти по коду",
+      "html": "<button class=\"ds-online\" type=\"button\"><span class=\"ds-online-tile\"><svg class=\"ds-online-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m10 13 4-4M8.5 15.5l-1 1a4.2 4.2 0 0 1-6-6l4-4a4.2 4.2 0 0 1 6 0M15.5 8.5l1-1a4.2 4.2 0 0 1 6 6l-4 4a4.2 4.2 0 0 1-6 0\" transform=\"translate(0 1) scale(.95)\"/></svg></span><span class=\"ds-online-copy\"><strong>Играть онлайн</strong><small>Создать комнату или войти по коду</small></span><svg class=\"ds-online-icon ds-online-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-online-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-online{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:62px;padding:10px 12px;border:1px solid rgba(56, 189, 248, 0.45);border-radius:10px;background:#12364c;color:var(--accent-ice,#e0f2fe);font-size:0.87rem;font-weight:600;line-height:1.5;text-align:left;cursor:pointer;transition:background-color 0.16s ease,border-color 0.16s ease,color 0.16s ease;}.ds-online-tile{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border:1px solid #2a536c;border-radius:9px;background:conic-gradient(#10293c 25%,#1b455b 0 50%,#10293c 0 75%,#1b455b 0);color:var(--accent-ice,#e0f2fe);overflow:hidden;}.ds-online-tile>.ds-online-icon{position:relative;width:19px;height:19px;}.ds-online-copy{flex:1;min-width:0;}.ds-online-copy strong,.ds-online-copy small{display:block;}.ds-online-copy strong{font-size:0.86rem;font-weight:600;line-height:1.3;}.ds-online-copy small{margin-top:3px;color:#a8d6e9;font-size:0.75rem;font-weight:400;line-height:1.4;}.ds-online .ds-online-arrow{width:15px;height:15px;color:var(--text-muted,#879bb5);transition:transform 0.16s ease;}.ds-online:hover{background:#17465f;border-color:var(--accent-cyan,#38bdf8);}.ds-online:hover:not(:disabled) .ds-online-arrow{transform:translateX(2px);color:var(--accent-ice,#e0f2fe);}.ds-online:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-online:active:not(:disabled){filter:brightness(1.15);}.ds-online:disabled{opacity:0.5;cursor:not-allowed;}.ds-online:disabled .ds-online-arrow{transform:none;}@media(prefers-reduced-motion:reduce){.ds-online,.ds-online-arrow{transition:none;}}"
+    },
+    {
+      "name": "Secondary command",
+      "kind": "button",
+      "refersTo": "command-secondary",
+      "description": "Начать с исходной позиции",
+      "html": "<button class=\"ds-secondary\" type=\"button\"><span class=\"ds-secondary-tile\"><svg class=\"ds-secondary-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 10a8 8 0 1 1 1.8 7.1M4 4v6h6\"/></svg></span><span class=\"ds-secondary-copy\"><strong>Новая партия</strong><small>Начать с исходной позиции</small></span><svg class=\"ds-secondary-icon ds-secondary-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-secondary-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-secondary{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:62px;padding:10px 12px;border:1px solid rgba(148, 163, 184, 0.2);border-radius:10px;background:var(--bg-surface-elevated,#142135);color:var(--text-primary,#e8f0f9);font-size:0.87rem;font-weight:600;line-height:1.5;text-align:left;cursor:pointer;transition:background-color 0.16s ease,border-color 0.16s ease,color 0.16s ease;}.ds-secondary-tile{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border:1px solid #2a536c;border-radius:9px;background:conic-gradient(#10293c 25%,#1b455b 0 50%,#10293c 0 75%,#1b455b 0);color:var(--accent-ice,#e0f2fe);overflow:hidden;}.ds-secondary-tile>.ds-secondary-icon{position:relative;width:19px;height:19px;}.ds-secondary-copy{flex:1;min-width:0;}.ds-secondary-copy strong,.ds-secondary-copy small{display:block;}.ds-secondary-copy strong{font-size:0.86rem;font-weight:600;line-height:1.3;}.ds-secondary-copy small{margin-top:3px;color:var(--text-secondary,#a1b2c8);font-size:0.75rem;font-weight:400;line-height:1.4;}.ds-secondary .ds-secondary-arrow{width:15px;height:15px;color:var(--text-muted,#879bb5);transition:transform 0.16s ease;}.ds-secondary:hover{background:var(--bg-surface-hover,#1a2b43);border-color:var(--accent-cyan,#38bdf8);}.ds-secondary:hover:not(:disabled) .ds-secondary-arrow{transform:translateX(2px);color:var(--accent-ice,#e0f2fe);}.ds-secondary:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-secondary:active:not(:disabled){filter:brightness(1.15);}.ds-secondary:disabled{opacity:0.5;cursor:not-allowed;}.ds-secondary:disabled .ds-secondary-arrow{transform:none;}@media(prefers-reduced-motion:reduce){.ds-secondary,.ds-secondary-arrow{transition:none;}}"
+    },
+    {
+      "name": "Records action",
+      "kind": "button",
+      "refersTo": "command-records",
+      "description": "Лучшие результаты игроков",
+      "html": "<button class=\"ds-records\" type=\"button\"><span class=\"ds-records-tile\"><svg class=\"ds-records-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M3 21h18M4 21V11h5v10M9 21V6h6v15M15 21V14h5v7M12 2v1\"/></svg></span><span class=\"ds-records-copy\"><strong>Таблица рекордов</strong><small>Лучшие результаты игроков</small></span><svg class=\"ds-records-icon ds-records-arrow\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m9 6 6 6-6 6\"/></svg></button>",
+      "css": ".ds-records-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-records{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:flex;align-items:center;justify-content:flex-start;gap:12px;width:100%;min-height:62px;padding:10px 12px;border:1px solid rgba(125, 142, 230, 0.4);border-radius:10px;background:#1b2546;color:var(--text-primary,#e8f0f9);font-size:0.87rem;font-weight:600;line-height:1.5;text-align:left;cursor:pointer;transition:background-color 0.16s ease,border-color 0.16s ease,color 0.16s ease;}.ds-records-tile{position:relative;display:inline-grid;place-items:center;width:38px;height:38px;flex:0 0 38px;border:1px solid #4f5e92;border-radius:9px;background:conic-gradient(#1b2947 25%,#303c67 0 50%,#1b2947 0 75%,#303c67 0);color:#d0d8ff;overflow:hidden;}.ds-records-tile>.ds-records-icon{position:relative;width:19px;height:19px;}.ds-records-copy{flex:1;min-width:0;}.ds-records-copy strong,.ds-records-copy small{display:block;}.ds-records-copy strong{font-size:0.86rem;font-weight:600;line-height:1.3;}.ds-records-copy small{margin-top:3px;color:#b1bde7;font-size:0.75rem;font-weight:400;line-height:1.4;}.ds-records .ds-records-arrow{width:15px;height:15px;color:var(--text-muted,#879bb5);transition:transform 0.16s ease;}.ds-records:hover{background:#243159;border-color:var(--accent-violet,#a8b5ff);}.ds-records:hover:not(:disabled) .ds-records-arrow{transform:translateX(2px);color:var(--accent-ice,#e0f2fe);}.ds-records:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-records:active:not(:disabled){filter:brightness(1.15);}.ds-records:disabled{opacity:0.5;cursor:not-allowed;}.ds-records:disabled .ds-records-arrow{transform:none;}@media(prefers-reduced-motion:reduce){.ds-records,.ds-records-arrow{transition:none;}}"
+    },
+    {
+      "name": "Outline transfer button",
+      "kind": "button",
+      "refersTo": "button-outline",
+      "description": "Native outline control; no invented pressed treatment.",
+      "html": "<button class=\"ds-outline\" type=\"button\"><svg class=\"ds-outline-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4\"/></svg>Скачать JSON</button>",
+      "css": ".ds-outline-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-outline{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border:1px solid var(--border-color,rgba(148, 174, 201, 0.16));border-radius:8px;background:transparent;color:var(--text-primary,#e8f0f9);font-size:0.87rem;font-weight:600;text-align:center;cursor:pointer;transition:background-color 0.16s ease,border-color 0.16s ease,color 0.16s ease;}.ds-outline:hover{background:var(--bg-surface-hover,#1a2b43);}.ds-outline:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-outline:disabled{opacity:0.5;cursor:not-allowed;}@media(pointer:coarse){.ds-outline{min-width:44px;min-height:44px;touch-action:manipulation;}}@media(prefers-reduced-motion:reduce){.ds-outline{transition:none;}}.ds-outline{min-width:0;min-height:40px;padding:7px 8px;font-size:0.74rem;white-space:nowrap;}.ds-outline .ds-outline-icon{width:15px;height:15px;color:var(--accent-cyan,#38bdf8);}.ds-outline:hover{border-color:rgba(56, 189, 248, 0.35);}@media(max-width:640px){.ds-outline{min-height:44px;padding-inline:10px;}}"
+    },
+    {
+      "name": "Danger button",
+      "kind": "button",
+      "refersTo": "button-danger",
+      "description": "Native danger control; no invented pressed treatment.",
+      "html": "<button class=\"ds-danger\" type=\"button\"><svg class=\"ds-danger-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M5 22V3c5-4 9 4 14 0v10c-5 4-9-4-14 0\"/></svg>Сдаться</button>",
+      "css": ".ds-danger-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-danger{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:10px 14px;border:1px solid rgba(244, 63, 94, 0.4);border-radius:8px;background:#3f2030;color:#ffa0b1;font-size:0.87rem;font-weight:600;text-align:center;cursor:pointer;transition:background-color 0.16s ease,border-color 0.16s ease,color 0.16s ease;}.ds-danger:hover{background:#57263b;}.ds-danger:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-danger:disabled{opacity:0.5;cursor:not-allowed;}@media(pointer:coarse){.ds-danger{min-width:44px;min-height:44px;touch-action:manipulation;}}@media(prefers-reduced-motion:reduce){.ds-danger{transition:none;}}"
+    },
+    {
+      "name": "Native mode radio tiles",
+      "kind": "input",
+      "refersTo": "mode-radio",
+      "description": "Native mutual exclusion and keyboard behavior; the whole label is clickable.",
+      "html": "<fieldset class=\"ds-modes\"><legend>Режим новой партии</legend><div class=\"ds-mode-options\"><label class=\"ds-mode-choice\"><input type=\"radio\" name=\"ds-game-mode\" value=\"local\" checked><span class=\"ds-mode-content\"><span class=\"ds-mode-tile\"><svg class=\"ds-mode-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><circle cx=\"9\" cy=\"7\" r=\"3\"/><path d=\"M3 21v-2a6 6 0 0 1 12 0v2M16 4a3 3 0 0 1 0 6M18 14a5 5 0 0 1 3 5v2\"/></svg></span><span class=\"ds-mode-copy\"><strong>С человеком</strong><small>На одной доске</small></span><svg class=\"ds-mode-icon ds-mode-check\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label><label class=\"ds-mode-choice\"><input type=\"radio\" name=\"ds-game-mode\" value=\"bot\"><span class=\"ds-mode-content\"><span class=\"ds-mode-tile\"><svg class=\"ds-mode-icon\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><rect x=\"4\" y=\"7\" width=\"16\" height=\"14\" rx=\"3\"/><path d=\"M12 3v4M10 3h4M1 12v5m22-5v5M8 12v2m8-2v2m-7 3h6\"/></svg></span><span class=\"ds-mode-copy\"><strong>С ботом</strong><small>Компьютер</small></span><svg class=\"ds-mode-icon ds-mode-check\" viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m5 12 4 4L19 6\"/></svg></span></label></div></fieldset>",
+      "css": ".ds-mode-icon{display:inline-block;width:18px;height:18px;flex:0 0 auto;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:middle;}.ds-modes{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;min-width:0;border:0;padding:0;margin:0;line-height:1.5;}.ds-modes legend{padding:0;margin-bottom:8px;font-size:0.82rem;color:var(--text-secondary,#a1b2c8);}.ds-mode-options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}.ds-mode-choice{position:relative;min-width:0;cursor:pointer;}.ds-mode-choice input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:inherit;}.ds-mode-content{display:flex;align-items:center;gap:9px;min-height:64px;height:100%;padding:10px;border:1px solid var(--border-color,rgba(148, 174, 201, 0.16));border-radius:10px;background:#111d2e;transition:border-color 0.16s ease,background-color 0.16s ease;}.ds-mode-tile{display:inline-grid;place-items:center;width:30px;height:30px;flex:0 0 30px;border:1px solid #345065;border-radius:9px;background:conic-gradient(#10293c 25%,#1b455b 0 50%,#10293c 0 75%,#1b455b 0);color:#a1b2c8;overflow:hidden;}.ds-mode-tile .ds-mode-icon{width:16px;height:16px;}.ds-mode-copy{flex:1;min-width:0;}.ds-mode-copy strong,.ds-mode-copy small{display:block;}.ds-mode-copy strong{color:var(--text-secondary,#a1b2c8);font-size:0.8rem;font-weight:600;}.ds-mode-copy small{margin-top:2px;color:var(--text-muted,#879bb5);font-size:0.7rem;}.ds-mode-content .ds-mode-check{width:14px;height:14px;margin-left:auto;color:var(--accent-cyan,#38bdf8);visibility:hidden;}.ds-mode-choice input:checked+.ds-mode-content{border-color:#3b7795;background:#143044;}.ds-mode-choice input:checked+.ds-mode-content strong{color:var(--text-primary,#e8f0f9);}.ds-mode-choice input:checked+.ds-mode-content .ds-mode-tile{border-color:#3b7795;color:var(--accent-ice,#e0f2fe);}.ds-mode-choice input:checked+.ds-mode-content .ds-mode-check{visibility:visible;}.ds-mode-choice:hover input:not(:disabled)+.ds-mode-content{border-color:var(--accent-cyan,#38bdf8);}.ds-mode-choice input:focus-visible+.ds-mode-content{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}.ds-modes:disabled{opacity:0.55;cursor:not-allowed;}.ds-modes:disabled .ds-mode-choice{cursor:not-allowed;}@media(max-width:1100px){.ds-mode-content{display:grid;grid-template-columns:30px minmax(0,1fr);align-content:start;gap:6px 8px;}.ds-mode-copy{grid-column:1/-1;}.ds-mode-check{grid-column:2;grid-row:1;justify-self:end;}}@media(prefers-reduced-motion:reduce){.ds-mode-content{transition:none;}}"
+    },
+    {
+      "name": "Account text field",
+      "kind": "input",
+      "refersTo": "account-input",
+      "description": "Visible label, source placeholder styling and cyan focus ring.",
+      "html": "<div class=\"ds-field\"><label for=\"ds-account-name\">Имя пользователя</label><input class=\"ds-input\" id=\"ds-account-name\" type=\"text\" placeholder=\"Введите имя\" autocomplete=\"username\"></div>",
+      "css": ".ds-field{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:flex;flex-direction:column;gap:6px;line-height:1.5;}.ds-field label{font-size:0.82rem;font-weight:600;color:var(--text-secondary,#a1b2c8);}.ds-input{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;background:#0c1422;border:1px solid rgba(148, 163, 184, 0.18);border-radius:8px;color:var(--text-primary,#e8f0f9);padding:11px 14px;font-size:0.92rem;outline:none;caret-color:var(--accent-cyan,#38bdf8);transition:border-color 0.2s,box-shadow 0.2s;min-width:0;width:100%;}.ds-input::placeholder{color:var(--text-muted,#879bb5);opacity:1;}.ds-input:focus,.ds-input:focus-visible{border-color:var(--accent-cyan,#38bdf8);box-shadow:0 0 0 3px rgba(56, 189, 248, 0.22);}@media(max-width:640px){.ds-input{min-height:44px;font-size:16px;}}@media(pointer:coarse){.ds-input{font-size:16px;}}@media(prefers-reduced-motion:reduce){.ds-input{transition:none;}}"
+    },
+    {
+      "name": "Dialog navigation",
+      "kind": "nav",
+      "refersTo": "dialog-tab",
+      "description": "Native account navigation buttons; selected state is shown without app controller logic.",
+      "html": "<div class=\"ds-tabs\"><button class=\"ds-tab ds-tab-active\" type=\"button\">Вход</button><button class=\"ds-tab\" type=\"button\">Регистрация</button></div>",
+      "css": ".ds-tabs{display:flex;gap:6px;margin-right:auto;background:#0e1726;}.ds-tab{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;display:inline-flex;align-items:center;justify-content:center;gap:7px;background:transparent;border:none;border-bottom:2px solid transparent;color:var(--text-muted,#879bb5);padding:12px;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.2s ease;}.ds-tab:hover{color:var(--text-primary,#e8f0f9);}.ds-tab.ds-tab-active{color:var(--accent-cyan,#38bdf8);border-bottom-color:var(--accent-cyan,#38bdf8);}.ds-tab:focus-visible{outline:2px solid var(--accent-cyan,#38bdf8);outline-offset:3px;}@media(max-width:640px){.ds-tabs{gap:0;}.ds-tab{min-height:44px;padding:10px 12px;font-size:0.88rem;}}@media(pointer:coarse){.ds-tab{min-width:44px;min-height:44px;touch-action:manipulation;}}@media(prefers-reduced-motion:reduce){.ds-tab{transition:none;}}"
+    },
+    {
+      "name": "Move-count badge",
+      "kind": "chip",
+      "refersTo": "card-surface",
+      "description": "Noninteractive mono count used in a card header.",
+      "html": "<span class=\"ds-count\">4 полухода</span>",
+      "css": ".ds-count{font-family:'JetBrains Mono', monospace;font-size:0.75rem;line-height:1.5;background:#0d1422;padding:3px 8px;border-radius:6px;color:var(--accent-cyan,#38bdf8);border:1px solid rgba(56, 189, 248, 0.2);}"
+    },
+    {
+      "name": "Notation card",
+      "kind": "card",
+      "refersTo": "card-surface",
+      "description": "Card and notation states, including a sticky header and active move.",
+      "html": "<section class=\"ds-card\"><h2>История ходов</h2><div class=\"ds-history-wrap\"><table class=\"ds-history\"><thead><tr><th class=\"ds-num\">#</th><th>Белые</th><th>Черные</th></tr></thead><tbody><tr><td class=\"ds-num\">1</td><td>e4</td><td>e5</td></tr><tr class=\"ds-latest\"><td class=\"ds-num\">2</td><td>Nf3</td><td class=\"ds-active-move\">Nc6</td></tr></tbody></table></div></section>",
+      "css": ".ds-card{font-family:'Inter', -apple-system, BlinkMacSystemFont, \"Segoe UI\", Roboto, sans-serif;background:var(--bg-surface,#101a2a);color:var(--text-primary,#e8f0f9);border:1px solid var(--border-color,rgba(148, 174, 201, 0.16));border-radius:14px;padding:18px;line-height:1.5;}.ds-card h2{margin:0 0 14px;font-size:0.9rem;font-weight:700;}.ds-history-wrap{max-height:240px;overflow-y:auto;border:1px solid rgba(148, 163, 184, 0.14);border-radius:8px;background:#0c121d;}.ds-history{width:100%;border-collapse:collapse;font-family:'JetBrains Mono', monospace;font-size:0.88rem;}.ds-history th{background:#101726;color:var(--text-muted,#879bb5);padding:8px 12px;text-align:left;font-weight:700;border-bottom:1px solid rgba(148, 163, 184, 0.14);position:sticky;top:0;z-index:2;}.ds-history .ds-num{width:44px;text-align:center;color:var(--text-muted,#879bb5);font-weight:600;}.ds-history td{padding:7px 12px;border-bottom:1px solid rgba(148, 163, 184, 0.06);color:#cbd5e1;}.ds-history tr:nth-child(even){background:rgba(255, 255, 255, 0.015);}.ds-history tr:hover{background:rgba(56, 189, 248, 0.06);}.ds-history tr.ds-latest{background:rgba(56, 189, 248, 0.09);}.ds-history td.ds-active-move{color:var(--accent-cyan,#38bdf8);font-weight:700;background:rgba(56, 189, 248, 0.16);border-radius:4px;}@media(max-width:640px){.ds-card{min-width:0;padding:15px;border-radius:10px;}.ds-history-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}}@media(max-width:380px){.ds-card{padding:12px;}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Клетка и координаты",
+    "overview": "A chess control panel built from deep blue ink surfaces, quiet slate borders and ice-colored text. Small four-square tiles connect the board to actions, player strips and dialogs; restrained cyan marks play and interaction, while violet distinguishes records.\n\nThe board remains the main working area. Interface copy is compact, direct and Russian; full-width action rows pair a clear verb with one short explanation. This records the implemented interface and the user-selected prototype direction, rather than a raster composition.",
+    "keyCharacteristics": [
+      "Four-square chess tiles carrying line-drawn SVG icons.",
+      "Tonal blue surfaces, restrained cyan actions and violet records.",
+      "Inter language; JetBrains Mono chess and numeric data.",
+      "Native controls, visible focus, touch layouts and scrollable dialogs."
+    ],
+    "rules": [
+      {
+        "name": "Accent Role",
+        "body": "Use cyan for play, selection and focus; use the violet action treatment for records. Keep neutral controls on blue surfaces.",
+        "section": "colors"
+      },
+      {
+        "name": "Data Type",
+        "body": "Use JetBrains Mono for coordinates, moves, counts and room codes; use Inter for interface language.",
+        "section": "typography"
+      },
+      {
+        "name": "State Motion",
+        "body": "Motion explains an interaction or loading state. Command rows stay in place while their chevron moves; there is no ambient animation.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do reuse the four-square tile and shared SVG line language, including the source-specific size variants.",
+      "Do pair major actions with a short description and keep the row full width.",
+      "Do preserve native controls, visible focus and disabled states.",
+      "Do keep all eight files visible and let long dialogs scroll within the viewport."
+    ],
+    "donts": [
+      "Don't replace interface SVG icons with emoji or decorative coordinate labels.",
+      "Don't spread violet record styling to ordinary game controls.",
+      "Don't animate entire command rows on hover or add idle pulsing.",
+      "Don't treat preview tonal ramps or unused legacy variables as approved colors."
+    ]
+  }
+}

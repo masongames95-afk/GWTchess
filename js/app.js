@@ -182,9 +182,9 @@ function cancelBotMove() {
 }
 
 function syncGameSettings() {
-    gameModeEl.value = isBotGame() ? 'bot' : 'local';
-    botHumanColorEl.value = isBotGame() ? gameState.bot.humanColor : 'white';
-    botColorFieldEl.classList.toggle('hidden', gameModeEl.value !== 'bot');
+    gameModeEl.querySelector(`input[value="${isBotGame() ? 'bot' : 'local'}"]`).checked = true;
+    botHumanColorEl.querySelector(`input[value="${isBotGame() ? gameState.bot.humanColor : 'white'}"]`).checked = true;
+    botColorFieldEl.classList.toggle('hidden', !isBotGame());
 }
 
 function renderBotStatus() {
@@ -454,7 +454,7 @@ function openPromotionModal(from, to, color) {
 function openGameOverModal(title, desc) {
     gameOverTitleEl.textContent = title;
     gameOverDescEl.textContent = desc;
-    gameOverIconEl.textContent = gameState.status === 'checkmate' ? '🏆' : '🤝';
+    gameOverIconEl.innerHTML = chessIcon(gameState.status === 'checkmate' ? 'crown' : 'draw');
     gameOverOverlay.classList.remove('hidden');
 }
 
@@ -561,8 +561,8 @@ function resetGame() {
     }
     cancelBotMove();
     gameState = createInitialState();
-    if (gameModeEl.value === 'bot') {
-        gameState.bot = { humanColor: botHumanColorEl.value };
+    if (gameModeEl.querySelector('input:checked').value === 'bot') {
+        gameState.bot = { humanColor: botHumanColorEl.querySelector('input:checked').value };
         isFlipped = gameState.bot.humanColor === 'black';
     }
     selectedSquare = null;
@@ -594,7 +594,9 @@ function render() {
     }
 
     // 2. Sound Icon State
-    btnSoundToggle.textContent = audio.enabled ? '🔊' : '🔇';
+    btnSoundToggle.innerHTML = chessIcon(audio.enabled ? 'volume' : 'volume-off');
+    btnSoundToggle.setAttribute('aria-pressed', String(audio.enabled));
+    btnSoundToggle.title = audio.enabled ? 'Выключить звук' : 'Включить звук';
 
     // 3. Player Bars Configuration (considering isFlipped)
     const topColor = isFlipped ? 'white' : 'black';
@@ -607,8 +609,8 @@ function render() {
         nameTopEl.textContent = playerName(topColor);
         nameBottomEl.textContent = playerName(bottomColor);
     }
-    avatarTopEl.textContent = topColor === 'white' ? '♔' : '♚';
-    avatarBottomEl.textContent = bottomColor === 'white' ? '♚' : '♔';
+    avatarTopEl.innerHTML = `<img src="assets/pieces/${topColor === 'white' ? 'wK' : 'bK'}.png" alt="${topColor === 'white' ? 'Белые' : 'Черные'}">`;
+    avatarBottomEl.innerHTML = `<img src="assets/pieces/${bottomColor === 'white' ? 'wK' : 'bK'}.png" alt="${bottomColor === 'white' ? 'Белые' : 'Черные'}">`;
 
     const playerTopEl = document.getElementById('player-top');
     const playerBottomEl = document.getElementById('player-bottom');
@@ -770,6 +772,10 @@ function renderHistoryTable() {
     const history = gameState.history;
     moveTotalEl.textContent = `${history.length} ${history.length === 1 ? 'ход' : 'ходов'}`;
 
+    if (history.length === 0) {
+        historyTbodyEl.innerHTML = '<tr class="history-empty"><td colspan="3">Сделайте первый ход — здесь появится запись партии.</td></tr>';
+    }
+
     const turnsCount = Math.ceil(history.length / 2);
     for (let t = 0; t < turnsCount; t++) {
         const tr = document.createElement('tr');
@@ -810,7 +816,7 @@ function renderHistoryTable() {
  */
 btnReset.addEventListener('click', resetGame);
 gameModeEl.addEventListener('change', () => {
-    botColorFieldEl.classList.toggle('hidden', gameModeEl.value !== 'bot');
+    botColorFieldEl.classList.toggle('hidden', gameModeEl.querySelector('input:checked').value !== 'bot');
 });
 btnBotRetry.addEventListener('click', requestBotMove);
 window.addEventListener('pagehide', cancelBotMove);
@@ -824,11 +830,14 @@ btnFlip.addEventListener('click', () => {
 
 btnSoundToggle.addEventListener('click', () => {
     const isEnabled = audio.toggle();
-    btnSoundToggle.textContent = isEnabled ? '🔊' : '🔇';
+    btnSoundToggle.innerHTML = chessIcon(isEnabled ? 'volume' : 'volume-off');
+    btnSoundToggle.setAttribute('aria-pressed', String(isEnabled));
+    btnSoundToggle.title = isEnabled ? 'Выключить звук' : 'Включить звук';
     showMessage(isEnabled ? 'Звуковые эффекты включены' : 'Звуковые эффекты отключены');
 });
 
 btnExportJson.addEventListener('click', exportToJson);
+document.getElementById('btn-import-json').addEventListener('click', () => jsonFileInput.click());
 
 jsonFileInput.addEventListener('change', (e) => {
     if (e.target.files && e.target.files[0]) {

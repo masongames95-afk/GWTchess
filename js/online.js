@@ -170,7 +170,7 @@ class OnlineController {
 
         try {
             this.btnCreateRoomAction.disabled = true;
-            this.btnCreateRoomAction.textContent = '⏳ Создаем комнату...';
+            this.btnCreateRoomAction.textContent = 'Создаем комнату...';
 
             const res = await fetch(`${API_BASE}/api/rooms/create`, {
                 method: 'POST',
@@ -180,7 +180,7 @@ class OnlineController {
 
             const data = await res.json();
             this.btnCreateRoomAction.disabled = false;
-            this.btnCreateRoomAction.textContent = '✨ Сгенерировать код комнаты';
+            this.btnCreateRoomAction.innerHTML = chessIcon('plus') + ' Сгенерировать код комнаты';
 
             if (!res.ok) {
                 if (typeof showMessage === 'function') {
@@ -215,7 +215,7 @@ class OnlineController {
         } catch (err) {
             console.error('Create room error:', err);
             this.btnCreateRoomAction.disabled = false;
-            this.btnCreateRoomAction.textContent = '✨ Сгенерировать код комнаты';
+            this.btnCreateRoomAction.innerHTML = chessIcon('plus') + ' Сгенерировать код комнаты';
             if (typeof showMessage === 'function') {
                 showMessage('Ошибка соединения с сервером при создании комнаты.', true);
             }
@@ -225,9 +225,9 @@ class OnlineController {
     copyRoomCode() {
         if (!this.activeRoom || !this.activeRoom.code) return;
         navigator.clipboard.writeText(this.activeRoom.code).then(() => {
-            this.btnCopyCode.textContent = '✓ Скопировано!';
+            this.btnCopyCode.innerHTML = chessIcon('check') + ' Скопировано!';
             setTimeout(() => {
-                if (this.btnCopyCode) this.btnCopyCode.textContent = '📋 Копировать код';
+                if (this.btnCopyCode) this.btnCopyCode.innerHTML = chessIcon('copy') + ' Копировать код';
             }, 2000);
         }).catch(err => {
             console.warn('Clipboard copy error:', err);
@@ -238,9 +238,9 @@ class OnlineController {
         if (!this.activeRoom || !this.activeRoom.code) return;
         const link = `${window.location.origin}${window.location.pathname}?room=${this.activeRoom.code}`;
         navigator.clipboard.writeText(link).then(() => {
-            this.btnCopyLink.textContent = '✓ Ссылка скопирована!';
+            this.btnCopyLink.innerHTML = chessIcon('check') + ' Ссылка скопирована!';
             setTimeout(() => {
-                if (this.btnCopyLink) this.btnCopyLink.textContent = '🔗 Скопировать ссылку на партию';
+                if (this.btnCopyLink) this.btnCopyLink.innerHTML = chessIcon('link') + ' Скопировать ссылку на партию';
             }, 2000);
         }).catch(err => {
             console.warn('Clipboard link copy error:', err);
@@ -258,7 +258,7 @@ class OnlineController {
 
         try {
             this.btnSubmitJoinRoom.disabled = true;
-            this.btnSubmitJoinRoom.textContent = '⏳ Подключение...';
+            this.btnSubmitJoinRoom.textContent = 'Подключение...';
 
             const res = await fetch(`${API_BASE}/api/rooms/join`, {
                 method: 'POST',
@@ -269,7 +269,7 @@ class OnlineController {
 
             const data = await res.json();
             this.btnSubmitJoinRoom.disabled = false;
-            this.btnSubmitJoinRoom.textContent = '🚀 Присоединиться к игре';
+            this.btnSubmitJoinRoom.innerHTML = chessIcon('arrow') + ' Присоединиться к игре';
 
             if (!res.ok) {
                 this.showJoinError(data.error || 'Ошибка входа в комнату.');
@@ -292,7 +292,7 @@ class OnlineController {
         } catch (err) {
             console.error('Join room error:', err);
             this.btnSubmitJoinRoom.disabled = false;
-            this.btnSubmitJoinRoom.textContent = '🚀 Присоединиться к игре';
+            this.btnSubmitJoinRoom.innerHTML = chessIcon('arrow') + ' Присоединиться к игре';
             this.showJoinError('Ошибка связи с сервером.');
         }
     }
@@ -408,7 +408,7 @@ class OnlineController {
             // Check game over
             if (data.status === 'checkmate') {
                 const isIWinner = (data.winner === this.activeRoom.color);
-                const title = isIWinner ? '🏆 Победа!' : 'Мат! Поражение';
+                const title = isIWinner ? 'Победа!' : 'Мат! Поражение';
                 const desc = isIWinner
                     ? `Вы поставили мат сопернику (${data.winner === 'white' ? 'Белые' : 'Черные'})!`
                     : `Вам поставили мат. Победили ${data.winner === 'white' ? 'Белые' : 'Черные'}.`;
@@ -424,7 +424,7 @@ class OnlineController {
                 }
             } else if (data.status === 'stalemate') {
                 if (typeof openGameOverModal === 'function') {
-                    openGameOverModal('🤝 Пат! Ничья', 'Партия завершилась ничьей.');
+                    openGameOverModal('Пат! Ничья', 'Партия завершилась ничьей.');
                 }
                 if (window.authController) {
                     window.authController.loadProfileData();
@@ -464,7 +464,7 @@ class OnlineController {
             }
 
             if (typeof openGameOverModal === 'function') {
-                openGameOverModal(`${isIWinner ? '🏆 ' : ''}${winnerName}`, reasonDesc);
+                openGameOverModal(winnerName, reasonDesc);
             }
 
             if (typeof showMessage === 'function') {
@@ -500,7 +500,7 @@ class OnlineController {
             this.bannerRoomCode.textContent = roomData.code;
         }
         if (this.bannerRoleBadge) {
-            this.bannerRoleBadge.textContent = roomData.color === 'white' ? '⚪ Вы: Белые' : '⚫ Вы: Черные';
+            this.bannerRoleBadge.textContent = roomData.color === 'white' ? 'Вы: Белые' : 'Вы: Черные';
         }
 
         // Update player bar labels
@@ -531,22 +531,22 @@ class OnlineController {
         if (!this.onlineStatusText || !this.activeRoom) return;
 
         if (this.activeRoom.status === 'waiting') {
-            this.onlineStatusText.textContent = '⏳ Ожидание подключения соперника...';
+            this.onlineStatusText.textContent = 'Ожидание подключения соперника...';
             return;
         }
 
         if (this.activeRoom.status === 'finished') {
-            this.onlineStatusText.textContent = '🏁 Партия завершена';
+            this.onlineStatusText.textContent = 'Партия завершена';
             return;
         }
 
         const isMyTurn = (gameState.turn === this.activeRoom.color);
         if (isMyTurn) {
-            this.onlineStatusText.textContent = '🟢 Ваш ход!';
-            this.onlineStatusText.style.color = '#4ade80';
+            this.onlineStatusText.textContent = 'Ваш ход!';
+            this.onlineStatusText.style.color = 'var(--accent-mint)';
         } else {
-            this.onlineStatusText.textContent = '⏳ Ход соперника...';
-            this.onlineStatusText.style.color = '#cbd5e1';
+            this.onlineStatusText.textContent = 'Ход соперника...';
+            this.onlineStatusText.style.color = 'var(--text-secondary)';
         }
     }
 

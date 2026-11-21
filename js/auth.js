@@ -101,7 +101,7 @@ class AuthController {
                     this.setCheckStatus('', '');
                     return;
                 }
-                this.setCheckStatus('checking', '⏳ Проверка...');
+                this.setCheckStatus('checking', 'Проверка...');
                 this.checkDebounceTimer = setTimeout(() => {
                     this.checkUsernameAvailability(username);
                 }, 300);
@@ -202,9 +202,9 @@ class AuthController {
         this.usernameCheckMsg.textContent = message;
 
         if (status === 'ok') {
-            this.usernameCheckIndicator.textContent = '✓';
+            this.usernameCheckIndicator.innerHTML = chessIcon('check');
         } else if (status === 'error') {
-            this.usernameCheckIndicator.textContent = '✗';
+            this.usernameCheckIndicator.innerHTML = chessIcon('close');
         } else if (status === 'checking') {
             this.usernameCheckIndicator.textContent = '…';
         } else {
@@ -230,7 +230,7 @@ class AuthController {
             return data;
         } catch (err) {
             console.error('Check username error:', err);
-            this.setCheckStatus('error', '⚠️ Сервер базы данных не запущен. Выполните npm start');
+            this.setCheckStatus('error', 'Сервер базы данных не запущен. Выполните npm start');
             return null;
         }
     }
@@ -459,7 +459,7 @@ class AuthController {
         try {
             if (this.btnCloudSave) {
                 this.btnCloudSave.disabled = true;
-                this.btnCloudSave.textContent = '⏳ Сохраняем...';
+                this.btnCloudSave.textContent = 'Сохраняем...';
             }
 
             const res = await fetch(`${API_BASE}/api/user/save-game`, {
@@ -487,7 +487,7 @@ class AuthController {
         } finally {
             if (this.btnCloudSave) {
                 this.btnCloudSave.disabled = false;
-                this.btnCloudSave.textContent = '💾 Сохранить';
+                this.btnCloudSave.innerHTML = chessIcon('save') + ' Сохранить';
             }
         }
     }
@@ -591,7 +591,7 @@ class AuthController {
                     if (games.length === 0) {
                         this.profileGamesList.innerHTML = `
                             <div class="profile-empty-games">
-                                ♟️ У вас пока нет сохраненных партий.<br>
+                                У вас пока нет сохраненных партий.<br>
                                 Сыграйте онлайн по коду комнаты или проведите локальную партию!
                             </div>
                         `;
@@ -611,7 +611,7 @@ class AuthController {
                             }
 
                             const opponentLabel = g.opponent ? `vs ${g.opponent}` : 'Локальная партия';
-                            const colorLabel = g.color === 'white' ? '⚪ Белые' : (g.color === 'black' ? '⚫ Черные' : '—');
+                            const colorLabel = g.color === 'white' ? 'Белые' : (g.color === 'black' ? 'Черные' : '—');
                             const reasonMap = {
                                 'checkmate': 'Мат',
                                 'stalemate': 'Пат',

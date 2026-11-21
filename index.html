@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Шахматы в браузере</title>
-    <link rel="stylesheet" href="css/style.css?v=2.5">
+    <meta name="theme-color" content="#0b121e">
+    <link rel="stylesheet" href="css/style.css?v=3.0">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
@@ -14,12 +15,12 @@
         <!-- Top Navigation / Header -->
         <header class="app-header">
             <div class="brand">
-                <div class="brand-icon">
+                <div class="brand-icon board-mark">
                     <img src="assets/pieces/wK.png" alt="Король" class="brand-img">
                 </div>
                 <div>
                     <h1>Королевские шахматы</h1>
-                    <span class="sub-badge">GitHub Pages • Правила FIDE • Open Source PNG</span>
+                    <span class="sub-badge">На одной доске · с ботом · онлайн</span>
                 </div>
             </div>
 
@@ -29,28 +30,28 @@
                     <span id="turn-text">Ход белых</span>
                 </div>
                 <div id="check-alert" class="check-alert hidden">
-                    <span class="pulse-icon">⚠️</span> ШАХ!
+                    <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#warning"></use></svg> Шах!
                 </div>
-                <button id="btn-sound-toggle" class="icon-btn" title="Включить/выключить звук" aria-label="Звук">
-                    🔊
+                <button id="btn-sound-toggle" class="icon-btn" title="Выключить звук" aria-label="Звук" aria-pressed="true">
+                    <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#volume"></use></svg>
                 </button>
-                <button id="btn-open-leaderboard" class="btn btn-outline btn-sm" title="Таблица рекордов и Зал славы">
-                    <span class="btn-icon">🏆</span> Рекорды
+                <button id="btn-open-leaderboard" class="btn btn-outline btn-sm" title="Таблица рекордов и Зал славы" aria-label="Рекорды">
+                    <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#records"></use></svg><span class="header-action-label">Рекорды</span>
                 </button>
 
                 <!-- Auth / Profile Section -->
                 <div class="header-auth" id="header-auth">
-                    <button id="btn-open-auth" class="btn btn-outline btn-sm">
-                        <span class="btn-icon">👤</span> Войти
+                    <button id="btn-open-auth" class="btn btn-outline btn-sm" aria-label="Войти" title="Войти в аккаунт">
+                        <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg><span class="header-action-label">Войти</span>
                     </button>
                     <div id="user-badge" class="user-badge hidden">
                         <div class="user-info-text clickable-user-info" id="user-info-clickable" title="Нажмите, чтобы открыть профиль и историю игр">
-                            <span class="user-icon">👤</span>
+                            <svg class="ui-icon user-icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg>
                             <span id="user-display-name" class="user-name">Гость</span>
                             <span id="user-stats-pill" class="stats-pill" title="Победы / Поражения / Ничьи">0 В • 0 П • 0 Н</span>
                         </div>
-                        <button id="btn-open-profile" class="btn btn-outline btn-xs" title="История сыгранных партий и статистика">📊 Профиль</button>
-                        <button id="btn-cloud-save" class="btn btn-outline btn-xs" title="Сохранить текущую игру в базу данных">💾 Сохранить</button>
+                        <button id="btn-open-profile" class="btn btn-outline btn-xs" title="История сыгранных партий и статистика"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#history"></use></svg> Профиль</button>
+                        <button id="btn-cloud-save" class="btn btn-outline btn-xs" title="Сохранить текущую игру в базу данных"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#save"></use></svg> Сохранить</button>
                         <button id="btn-logout" class="btn btn-outline btn-xs" title="Выйти из аккаунта">Выйти</button>
                     </div>
                 </div>
@@ -66,19 +67,19 @@
                     <div class="banner-left">
                         <span class="live-dot pulse"></span>
                         <span class="banner-room-label">Комната: <strong id="banner-room-code">------</strong></span>
-                        <span class="banner-role-badge" id="banner-role-badge">⚪ Вы: Белые</span>
+                        <span class="banner-role-badge" id="banner-role-badge">Вы: Белые</span>
                     </div>
                     <div class="banner-right">
                         <span id="online-status-text" class="online-status-text">Ожидание хода соперника...</span>
-                        <button id="btn-online-resign" class="btn btn-danger btn-xs" title="Сдаться в этой партии">🏳️ Сдаться</button>
-                        <button id="btn-online-leave" class="btn btn-outline btn-xs" title="Покинуть онлайн-игру">🚪 Выйти</button>
+                        <button id="btn-online-resign" class="btn btn-danger btn-xs" title="Сдаться в этой партии"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#flag"></use></svg> Сдаться</button>
+                        <button id="btn-online-leave" class="btn btn-outline btn-xs" title="Покинуть онлайн-игру"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#logout"></use></svg> Выйти</button>
                     </div>
                 </div>
 
                 <!-- Opponent Player Bar (Black default) -->
                 <div class="player-bar" id="player-top">
                     <div class="player-info">
-                        <div class="player-avatar" id="avatar-top">♚</div>
+                        <div class="player-avatar board-mark" id="avatar-top"><img src="assets/pieces/bK.png" alt="Черные"></div>
                         <div class="player-meta">
                             <span class="player-name" id="name-top">Черные</span>
                             <div class="captured-row" id="captured-top"></div>
@@ -94,7 +95,7 @@
                     <!-- Pawn Promotion Modal Overlay -->
                     <div id="promotion-overlay" class="modal-overlay hidden">
                         <div class="promotion-modal">
-                            <h3>Выберите фигуру:</h3>
+                            <h2>Выберите фигуру:</h2>
                             <div class="promotion-choices" id="promotion-choices">
                                 <!-- Dynamically filled with Queen, Rook, Bishop, Knight -->
                             </div>
@@ -104,7 +105,7 @@
                     <!-- Game Over Modal Overlay -->
                     <div id="game-over-overlay" class="modal-overlay hidden">
                         <div class="game-over-modal">
-                            <div class="modal-icon" id="game-over-icon">🏆</div>
+                            <div class="modal-icon board-mark" id="game-over-icon"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#crown"></use></svg></div>
                             <h2 id="game-over-title">Мат!</h2>
                             <p id="game-over-desc">Белые победили в 24 хода.</p>
                             <div class="modal-actions">
@@ -118,7 +119,7 @@
                 <!-- Bottom Player Bar (White default) -->
                 <div class="player-bar" id="player-bottom">
                     <div class="player-info">
-                        <div class="player-avatar" id="avatar-bottom">♔</div>
+                        <div class="player-avatar board-mark" id="avatar-bottom"><img src="assets/pieces/wK.png" alt="Белые"></div>
                         <div class="player-meta">
                             <span class="player-name" id="name-bottom">Белые</span>
                             <div class="captured-row" id="captured-bottom"></div>
@@ -132,50 +133,85 @@
             <aside class="sidebar">
                 <!-- Action Controls Card -->
                 <div class="card controls-card">
-                    <h2>Управление</h2>
+                    <div class="card-header">
+                        <h2>Управление</h2>
+                        <svg class="ui-icon section-icon" aria-hidden="true"><use href="assets/icons.svg#flip"></use></svg>
+                    </div>
                     <div class="game-settings">
-                        <label for="game-mode">Режим новой партии</label>
-                        <select id="game-mode">
-                            <option value="local">Вдвоём на одном устройстве</option>
-                            <option value="bot">С ботом</option>
-                        </select>
+                        <fieldset id="game-mode" class="mode-field">
+                            <legend>Режим новой партии</legend>
+                            <div class="mode-options">
+                                <label class="mode-choice">
+                                    <input type="radio" name="game-mode" value="local" checked>
+                                    <span class="mode-content">
+                                        <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#people"></use></svg></span>
+                                        <span class="mode-copy"><strong>С человеком</strong><small>На одной доске</small></span>
+                                        <svg class="ui-icon mode-check" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg>
+                                    </span>
+                                </label>
+                                <label class="mode-choice">
+                                    <input type="radio" name="game-mode" value="bot">
+                                    <span class="mode-content">
+                                        <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#bot"></use></svg></span>
+                                        <span class="mode-copy"><strong>С ботом</strong><small>Компьютер</small></span>
+                                        <svg class="ui-icon mode-check" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg>
+                                    </span>
+                                </label>
+                            </div>
+                        </fieldset>
                         <div id="bot-color-field" class="hidden">
-                            <label for="bot-human-color">Ваша сторона</label>
-                            <select id="bot-human-color">
-                                <option value="white">Белые — первый ход за вами</option>
-                                <option value="black">Чёрные — первым ходит бот</option>
-                            </select>
+                            <fieldset id="bot-human-color" class="mode-field">
+                                <legend>Ваша сторона</legend>
+                                <div class="mode-options side-options">
+                                    <label class="mode-choice">
+                                        <input type="radio" name="bot-human-color" value="white" checked>
+                                        <span class="mode-content"><img src="assets/pieces/wK.png" alt=""><span>Белые</span><svg class="ui-icon mode-check" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg></span>
+                                    </label>
+                                    <label class="mode-choice">
+                                        <input type="radio" name="bot-human-color" value="black">
+                                        <span class="mode-content"><img src="assets/pieces/bK.png" alt=""><span>Чёрные</span><svg class="ui-icon mode-check" aria-hidden="true"><use href="assets/icons.svg#check"></use></svg></span>
+                                    </label>
+                                </div>
+                            </fieldset>
                         </div>
                     </div>
-                    <div class="buttons-grid">
-                        <button id="btn-reset" class="btn btn-danger">
-                            <span class="btn-icon">↺</span> Новая партия
+                    <div class="buttons-grid command-list">
+                        <button id="btn-reset" class="btn btn-secondary command-btn">
+                            <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#restart"></use></svg></span>
+                            <span class="command-copy"><strong>Новая партия</strong><small>Начать с исходной позиции</small></span>
+                            <svg class="ui-icon command-arrow" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg>
                         </button>
-                        <button id="btn-flip" class="btn btn-secondary">
-                            <span class="btn-icon">⇄</span> Перевернуть доску
+                        <button id="btn-flip" class="btn btn-secondary command-btn">
+                            <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#flip"></use></svg></span>
+                            <span class="command-copy"><strong>Перевернуть доску</strong><small>Посмотреть с другой стороны</small></span>
+                            <svg class="ui-icon command-arrow" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg>
                         </button>
                     </div>
                     <p id="bot-status" class="bot-status hidden" role="status"></p>
                     <button id="btn-bot-retry" class="btn btn-outline btn-block hidden">Повторить ход бота</button>
 
-                    <button id="btn-open-online" class="btn btn-primary btn-block online-cta-btn">
-                        <span class="btn-icon">🌐</span> Онлайн-игра по коду комнаты
+                    <button id="btn-open-online" class="btn btn-primary btn-block online-cta-btn command-btn">
+                        <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#link"></use></svg></span>
+                        <span class="command-copy"><strong>Играть онлайн</strong><small>Создать комнату или войти по коду</small></span>
+                        <svg class="ui-icon command-arrow" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg>
                     </button>
-                    <button id="btn-sidebar-leaderboard" class="btn btn-secondary btn-block leaderboard-cta-btn">
-                        <span class="btn-icon">🏆</span> Таблица рекордов
+                    <button id="btn-sidebar-leaderboard" class="btn btn-secondary btn-block leaderboard-cta-btn command-btn">
+                        <span class="board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#records"></use></svg></span>
+                        <span class="command-copy"><strong>Таблица рекордов</strong><small>Лучшие результаты игроков</small></span>
+                        <svg class="ui-icon command-arrow" aria-hidden="true"><use href="assets/icons.svg#chevron"></use></svg>
                     </button>
 
                     <div class="secondary-actions">
                         <button id="btn-export-json" class="btn btn-outline btn-sm">
-                            ⬇ Скачать JSON
+                            <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#download"></use></svg> Скачать JSON
                         </button>
-                        <label for="json-file-input" class="btn btn-outline btn-sm file-label">
-                            ⬆ Загрузить JSON
-                            <input type="file" id="json-file-input" accept=".json" style="display: none;">
-                        </label>
+                        <button id="btn-import-json" type="button" class="btn btn-outline btn-sm file-label">
+                            <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#upload"></use></svg> Загрузить JSON
+                        </button>
+                        <input type="file" id="json-file-input" accept=".json" hidden>
                     </div>
 
-                    <div id="message-box" class="message-box"></div>
+                    <div id="message-box" class="message-box" role="status"></div>
                 </div>
 
                 <!-- Move History Card -->
@@ -202,7 +238,7 @@
 
                 <!-- Game Rules & Info Card -->
                 <div class="card info-card">
-                    <h2>Подсказки & Правила</h2>
+                    <div class="card-header"><h2>Подсказки и правила</h2><svg class="ui-icon section-icon" aria-hidden="true"><use href="assets/icons.svg#info"></use></svg></div>
                     <ul class="rules-list">
                         <li><strong>Шах и Мат:</strong> Полная проверка безопасности короля.</li>
                         <li><strong>Рокировка:</strong> O-O (короткая) и O-O-O (длинная).</li>
@@ -216,13 +252,14 @@
 
     <!-- Auth Modal Overlay (Login, Registration, Live Account Check) -->
     <div id="auth-overlay" class="auth-overlay hidden">
-        <div class="auth-modal">
+        <div class="auth-modal" role="dialog" aria-modal="true" aria-label="Аккаунт">
             <div class="auth-modal-header">
+                <span class="board-mark modal-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg></span>
                 <div class="auth-tabs">
                     <button id="tab-login" class="auth-tab active" type="button">Вход</button>
                     <button id="tab-register" class="auth-tab" type="button">Регистрация</button>
                 </div>
-                <button id="btn-close-auth" class="modal-close-btn" type="button" aria-label="Закрыть окно">✕</button>
+                <button id="btn-close-auth" class="modal-close-btn" type="button" aria-label="Закрыть окно"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button>
             </div>
 
             <div class="auth-modal-body">
@@ -272,16 +309,16 @@
 
     <!-- User Profile Modal Overlay -->
     <div id="profile-overlay" class="auth-overlay hidden">
-        <div class="auth-modal profile-modal-card">
+        <div class="auth-modal profile-modal-card" role="dialog" aria-modal="true" aria-labelledby="profile-username">
             <div class="auth-modal-header">
                 <div class="profile-header-meta">
-                    <span class="profile-avatar-icon">👤</span>
+                    <span class="profile-avatar-icon board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#user"></use></svg></span>
                     <div>
                         <h2 id="profile-username" class="profile-username-title">Имя игрока</h2>
                         <span id="profile-created-date" class="profile-subtext">В игре с: —</span>
                     </div>
                 </div>
-                <button id="btn-close-profile" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+                <button id="btn-close-profile" class="modal-close-btn" type="button" aria-label="Закрыть"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button>
             </div>
 
             <div class="profile-modal-body">
@@ -307,7 +344,7 @@
 
                 <!-- Personal Record Highlight -->
                 <div id="profile-record-row" class="profile-record-row hidden">
-                    <span class="record-icon">⚡</span>
+                    <svg class="ui-icon record-icon" aria-hidden="true"><use href="assets/icons.svg#bolt"></use></svg>
                     <span class="record-text">Личный рекорд: самый быстрый мат за <strong id="profile-fastest-mate-val">—</strong></span>
                 </div>
 
@@ -328,13 +365,14 @@
 
     <!-- Online Game Lobby Modal Overlay -->
     <div id="online-overlay" class="auth-overlay hidden">
-        <div class="auth-modal online-lobby-modal">
+        <div class="auth-modal online-lobby-modal" role="dialog" aria-modal="true" aria-label="Онлайн-игра">
             <div class="auth-modal-header">
+                <span class="board-mark modal-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#link"></use></svg></span>
                 <div class="auth-tabs">
                     <button id="tab-create-room" class="auth-tab active" type="button">Создать комнату</button>
                     <button id="tab-join-room" class="auth-tab" type="button">Войти по коду</button>
                 </div>
-                <button id="btn-close-online" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+                <button id="btn-close-online" class="modal-close-btn" type="button" aria-label="Закрыть"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button>
             </div>
 
             <div class="auth-modal-body">
@@ -345,7 +383,7 @@
                             Создайте партию и получите 6-значный код комнаты. Передайте этот код сопернику для совместной игры онлайн.
                         </p>
                         <button id="btn-create-room-action" class="btn btn-primary btn-block">
-                            ✨ Сгенерировать код комнаты
+                            <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#plus"></use></svg> Сгенерировать код комнаты
                         </button>
                     </div>
 
@@ -354,12 +392,12 @@
                         <div class="code-highlight-wrapper">
                             <span id="created-room-code" class="room-code-tag">------</span>
                             <button id="btn-copy-code" class="btn btn-secondary btn-sm" type="button">
-                                📋 Копировать код
+                                <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#copy"></use></svg> Копировать код
                             </button>
                         </div>
                         <div class="link-copy-row">
                             <button id="btn-copy-link" class="btn btn-outline btn-xs" type="button">
-                                🔗 Скопировать ссылку на партию
+                                <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#link"></use></svg> Скопировать ссылку на партию
                             </button>
                         </div>
                         <div class="pulse-waiting-row">
@@ -384,7 +422,7 @@
                         </div>
                         <div id="join-room-error" class="form-error hidden"></div>
                         <button type="submit" id="btn-submit-join-room" class="btn btn-primary btn-block">
-                            🚀 Присоединиться к игре
+                            <svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#arrow"></use></svg> Присоединиться к игре
                         </button>
                     </form>
                 </div>
@@ -394,27 +432,27 @@
 
     <!-- Leaderboard Modal Overlay (Records, Fastest Checkmate, Top Wins, Winrate, Activity) -->
     <div id="leaderboard-overlay" class="auth-overlay hidden">
-        <div class="auth-modal leaderboard-modal-card">
+        <div class="auth-modal leaderboard-modal-card" role="dialog" aria-modal="true" aria-label="Таблица рекордов">
             <div class="auth-modal-header">
                 <div class="leaderboard-header-title">
-                    <span class="leaderboard-header-icon">🏆</span>
+                    <span class="leaderboard-header-icon board-mark"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#records"></use></svg></span>
                     <div>
                         <h2>Таблица рекордов</h2>
                         <span class="leaderboard-subtitle">Зал славы и лучшие достижения игроков</span>
                     </div>
                 </div>
                 <div class="leaderboard-header-actions">
-                    <button id="btn-refresh-leaderboard" class="icon-btn-subtle" title="Обновить таблицу" aria-label="Обновить">🔄</button>
-                    <button id="btn-close-leaderboard" class="modal-close-btn" type="button" aria-label="Закрыть">✕</button>
+                    <button id="btn-refresh-leaderboard" class="icon-btn-subtle" title="Обновить таблицу" aria-label="Обновить"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#refresh"></use></svg></button>
+                    <button id="btn-close-leaderboard" class="modal-close-btn" type="button" aria-label="Закрыть"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#close"></use></svg></button>
                 </div>
             </div>
 
             <!-- Category Navigation Tabs -->
             <div class="leaderboard-nav-tabs">
-                <button id="tab-lb-fastest-mate" class="auth-tab active" type="button">⚡ Самый быстрый мат</button>
-                <button id="tab-lb-wins" class="auth-tab" type="button">🏆 Топ по победам</button>
-                <button id="tab-lb-winrate" class="auth-tab" type="button">🎯 Винрейт</button>
-                <button id="tab-lb-active" class="auth-tab" type="button">⚔️ Активность</button>
+                <button id="tab-lb-fastest-mate" class="auth-tab active" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#bolt"></use></svg> Быстрый мат</button>
+                <button id="tab-lb-wins" class="auth-tab" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#records"></use></svg> Победы</button>
+                <button id="tab-lb-winrate" class="auth-tab" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#target"></use></svg> Винрейт</button>
+                <button id="tab-lb-active" class="auth-tab" type="button"><svg class="ui-icon" aria-hidden="true"><use href="assets/icons.svg#history"></use></svg> Активность</button>
             </div>
 
             <div class="leaderboard-modal-body">
@@ -440,10 +478,11 @@
     </div>
 
     <!-- Engine, Auth, Online, Leaderboard & UI Scripts -->
+    <script src="js/icons.js?v=3.0"></script>
     <script src="js/engine.js?v=2.3"></script>
-    <script src="js/auth.js?v=2.3"></script>
-    <script src="js/online.js?v=2.5"></script>
-    <script src="js/leaderboard.js?v=2.3"></script>
-    <script src="js/app.js?v=2.4"></script>
+    <script src="js/auth.js?v=3.0"></script>
+    <script src="js/online.js?v=3.0"></script>
+    <script src="js/leaderboard.js?v=3.0"></script>
+    <script src="js/app.js?v=3.0"></script>
 </body>
 </html>

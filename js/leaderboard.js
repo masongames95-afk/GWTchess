@@ -190,7 +190,7 @@ class LeaderboardController {
             this.userSummary.classList.remove('hidden');
             this.userSummary.innerHTML = `
                 <div class="lb-summary-inner">
-                    <span class="lb-summary-icon">💡</span>
+                    <span class="lb-summary-icon">${chessIcon('info')}</span>
                     <span class="lb-summary-text">
                         <strong>Играете как гость.</strong> 
                         <a href="javascript:void(0)" id="lb-guest-login-link" class="lb-link">Войдите в аккаунт</a>, 
@@ -224,7 +224,7 @@ class LeaderboardController {
                 const moveDesc = this.formatMovesPlural(rankData.fastestMate.movesCount, rankData.fastestMate.fullMoves);
                 statusHtml = `
                     <div class="lb-summary-inner">
-                        <span class="lb-summary-icon">⚡</span>
+                        <span class="lb-summary-icon">${chessIcon('bolt')}</span>
                         <div class="lb-summary-text">
                             <span>Вы: <strong>${rankData.username}</strong></span>
                             <span class="lb-summary-highlight">Ваш рекорд: <strong>${moveDesc.fullText}</strong> (${moveDesc.pliesText}) • Место в топе: <strong>#${rankData.fastestMateRank}</strong></span>
@@ -234,7 +234,7 @@ class LeaderboardController {
             } else {
                 statusHtml = `
                     <div class="lb-summary-inner">
-                        <span class="lb-summary-icon">🎯</span>
+                        <span class="lb-summary-icon">${chessIcon('target')}</span>
                         <div class="lb-summary-text">
                             <span>Вы: <strong>${rankData.username}</strong></span>
                             <span>У вас пока нет зафиксированных побед матом. Одержите победу матом, чтобы попасть в таблицу рекордов!</span>
@@ -247,7 +247,7 @@ class LeaderboardController {
             const rankLabel = rankData.winsRank ? `#${rankData.winsRank}` : '—';
             statusHtml = `
                 <div class="lb-summary-inner">
-                    <span class="lb-summary-icon">🏆</span>
+                    <span class="lb-summary-icon">${chessIcon('records')}</span>
                     <div class="lb-summary-text">
                         <span>Вы: <strong>${rankData.username}</strong></span>
                         <span class="lb-summary-highlight">Побед: <strong>${winsCount}</strong> • Место в рейтинге побед: <strong>${rankLabel}</strong></span>
@@ -260,7 +260,7 @@ class LeaderboardController {
             const rankLabel = rankData.winrateRank ? `#${rankData.winrateRank}` : '—';
             statusHtml = `
                 <div class="lb-summary-inner">
-                    <span class="lb-summary-icon">🎯</span>
+                    <span class="lb-summary-icon">${chessIcon('target')}</span>
                     <div class="lb-summary-text">
                         <span>Вы: <strong>${rankData.username}</strong></span>
                         <span class="lb-summary-highlight">Винрейт: <strong>${wr}%</strong> (${stats.wins} из ${stats.total}) • Место: <strong>${rankLabel}</strong></span>
@@ -272,7 +272,7 @@ class LeaderboardController {
             const rankLabel = rankData.activeRank ? `#${rankData.activeRank}` : '—';
             statusHtml = `
                 <div class="lb-summary-inner">
-                    <span class="lb-summary-icon">⚔️</span>
+                    <span class="lb-summary-icon">${chessIcon('history')}</span>
                     <div class="lb-summary-text">
                         <span>Вы: <strong>${rankData.username}</strong></span>
                         <span class="lb-summary-highlight">Сыграно партий: <strong>${stats.total}</strong> • Место по активности: <strong>${rankLabel}</strong></span>
@@ -314,20 +314,20 @@ class LeaderboardController {
             const rankBadge = this.getRankBadgeHtml(entry.rank);
             const moves = this.formatMovesPlural(entry.movesCount, entry.fullMoves);
             const dateStr = this.formatDate(entry.date);
-            const oppLabel = entry.opponent ? (entry.opponent.startsWith('Локальная') ? '♟️ Локально' : `vs ${entry.opponent}`) : 'Соперник';
+            const oppLabel = entry.opponent ? (entry.opponent.startsWith('Локальная') ? 'Локально' : `vs ${entry.opponent}`) : 'Соперник';
 
             tr.innerHTML = `
                 <td class="col-rank">${rankBadge}</td>
                 <td class="col-user">
                     <div class="lb-user-cell">
-                        <span class="lb-avatar-mini">👤</span>
+                        <span class="lb-avatar-mini">${chessIcon('user')}</span>
                         <span class="lb-username">${this.escapeHtml(entry.username)}</span>
                         ${isMe ? '<span class="lb-you-tag">Вы</span>' : ''}
                     </div>
                 </td>
                 <td class="col-metric">
                     <div class="lb-metric-primary">
-                        <span class="lb-highlight-metric">⚡ ${moves.fullText}</span>
+                        <span class="lb-highlight-metric">${moves.fullText}</span>
                         <span class="lb-metric-sub">(${moves.pliesText})</span>
                     </div>
                 </td>
@@ -376,13 +376,13 @@ class LeaderboardController {
                 <td class="col-rank">${rankBadge}</td>
                 <td class="col-user">
                     <div class="lb-user-cell">
-                        <span class="lb-avatar-mini">👤</span>
+                        <span class="lb-avatar-mini">${chessIcon('user')}</span>
                         <span class="lb-username">${this.escapeHtml(entry.username)}</span>
                         ${isMe ? '<span class="lb-you-tag">Вы</span>' : ''}
                     </div>
                 </td>
                 <td class="col-metric">
-                    <span class="lb-highlight-metric wins-metric">🏆 ${entry.wins}</span>
+                    <span class="lb-highlight-metric wins-metric">${entry.wins}</span>
                 </td>
                 <td class="col-extra">
                     <span class="lb-score-pill">${entry.wins} В • ${entry.losses} П • ${entry.draws} Н</span>
@@ -429,13 +429,13 @@ class LeaderboardController {
                 <td class="col-rank">${rankBadge}</td>
                 <td class="col-user">
                     <div class="lb-user-cell">
-                        <span class="lb-avatar-mini">👤</span>
+                        <span class="lb-avatar-mini">${chessIcon('user')}</span>
                         <span class="lb-username">${this.escapeHtml(entry.username)}</span>
                         ${isMe ? '<span class="lb-you-tag">Вы</span>' : ''}
                     </div>
                 </td>
                 <td class="col-metric">
-                    <span class="lb-highlight-metric winrate-metric">🎯 ${entry.winrate}%</span>
+                    <span class="lb-highlight-metric winrate-metric">${entry.winrate}%</span>
                 </td>
                 <td class="col-extra">
                     <span class="lb-score-pill">${entry.total} партий</span>
@@ -482,13 +482,13 @@ class LeaderboardController {
                 <td class="col-rank">${rankBadge}</td>
                 <td class="col-user">
                     <div class="lb-user-cell">
-                        <span class="lb-avatar-mini">👤</span>
+                        <span class="lb-avatar-mini">${chessIcon('user')}</span>
                         <span class="lb-username">${this.escapeHtml(entry.username)}</span>
                         ${isMe ? '<span class="lb-you-tag">Вы</span>' : ''}
                     </div>
                 </td>
                 <td class="col-metric">
-                    <span class="lb-highlight-metric active-metric">⚔️ ${entry.total}</span>
+                    <span class="lb-highlight-metric active-metric">${entry.total}</span>
                 </td>
                 <td class="col-extra">
                     <span class="lb-score-pill">${entry.wins} В • ${entry.draws} Н</span>
@@ -504,11 +504,11 @@ class LeaderboardController {
 
     getRankBadgeHtml(rank) {
         if (rank === 1) {
-            return `<span class="rank-badge rank-1" title="1-е место">🥇 #1</span>`;
+            return `<span class="rank-badge rank-1" title="1-е место">#1</span>`;
         } else if (rank === 2) {
-            return `<span class="rank-badge rank-2" title="2-е место">🥈 #2</span>`;
+            return `<span class="rank-badge rank-2" title="2-е место">#2</span>`;
         } else if (rank === 3) {
-            return `<span class="rank-badge rank-3" title="3-е место">🥉 #3</span>`;
+            return `<span class="rank-badge rank-3" title="3-е место">#3</span>`;
         }
         return `<span class="rank-badge rank-normal">#${rank}</span>`;
     }
